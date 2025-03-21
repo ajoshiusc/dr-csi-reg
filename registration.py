@@ -102,30 +102,11 @@ def nonlin_register(inputT2, atlas_brain, centered_atlas_nonlinreg, linloss='cc'
         device=device,
     )
 
-    disp_field, meta = LoadImage(image_only=False)(nonlin_reg_map_file)
-    disp_field = EnsureChannelFirst()(disp_field)
-
+    
     composedeformation(nonlin_reg_map_file, lin_reg_map_file, composed_ddf_file)
-
-    #composed_ddf_file is the map that is combination of linear and non-linear deformation fields. The centering is to be applied separately    
-    cent_transform = sitk.ReadTransform(cent_transform_file)
-    atlas = sitk.ReadImage(atlas_brain, sitk.sitkFloat32)
-    moved_image = sitk.Resample(atlas, fixed_image, cent_transform)
-    sitk.WriteImage(moved_image, centered_atlas)
-
-    applydeformation(centered_atlas, composed_ddf_file, full_deformed_atlas)
 
     # Invert the composed deformation field this takes about 5-7 min
     invertdeformationfield(composed_ddf_file, inv_composed_ddf_file)
-    applydeformation(inputT2, inv_composed_ddf_file, full_deformed_subject) # subject moved to atlas space (without centering)
-
-    # apply centering
-    moving_image = sitk.ReadImage(full_deformed_subject, sitk.sitkFloat32)
-    fixed_image = sitk.ReadImage(atlas_brain, sitk.sitkFloat32)
-    inv_cent_transform = sitk.ReadTransform(inv_cent_transform_file)
-    moved_image = sitk.Resample(moving_image, fixed_image, inv_cent_transform)
-    sitk.WriteImage(moved_image, subject_deformed2_atlas)
-
 
 
 if __name__ == "__main__":
