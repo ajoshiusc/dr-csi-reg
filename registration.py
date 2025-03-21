@@ -21,37 +21,37 @@ from applydeformation import applydeformation
 from invertdeformationfield import invertdeformationfield
 
 
-def nonlin_register(inputT2, atlas_brain, centered_atlas_nonlinreg, linloss='cc', nonlinloss='cc', le=1500, ne=5000, device='cuda'):
-    if not os.path.exists(inputT2):
-        print('ERROR: file', inputT2, 'does not exist.')
+def nonlin_register(moving, fixed, centered_moving_nonlinreg, linloss='cc', nonlinloss='cc', le=1500, ne=5000, device='cuda'):
+    if not os.path.exists(fixed):
+        print('ERROR: file', fixed, 'does not exist.')
         sys.exit(2)
 
-    if not os.path.exists(atlas_brain):
-        print('ERROR: file', atlas_brain, 'does not exist.')
+    if not os.path.exists(moving):
+        print('ERROR: file', moving, 'does not exist.')
         sys.exit(2)
 
 
-    subID = inputT2.split('.')[0]
+    subID = fixed.split('.')[0]
     subbase = subID + '.rodreg'
 
+    subbase_dir = subbase + "_dir"
+    os.makedirs(subbase_dir, exist_ok=True)
 
-    centered_atlas = subbase+".atlas.cent.nii.gz"
-    cent_transform_file = subbase+".cent.reg.tfm"
-    inv_cent_transform_file = subbase+".cent.reg.inv.tfm"
+    centered_moving = join(subbase_dir, "moving.cent.nii.gz")
+    cent_transform_file = join(subbase_dir, "cent.reg.tfm")
+    inv_cent_transform_file = join(subbase_dir, "cent.reg.inv.tfm")
 
-    centered_atlas_linreg = subbase+".atlas.lin.nii.gz"
-    lin_reg_map_file = subbase+".lin_ddf.map.nii.gz"
+    centered_moving_linreg = join(subbase_dir, "moving.lin.nii.gz")
+    lin_reg_map_file = join(subbase_dir, "lin_ddf.map.nii.gz")
 
-    nonlin_reg_map_file = subbase+".nonlin_ddf.map.nii.gz"
-    inv_nonlin_reg_map_file = subbase+".inv.nonlin_ddf.map.nii.gz"
+    nonlin_reg_map_file = join(subbase_dir, "nonlin_ddf.map.nii.gz")
+    inv_nonlin_reg_map_file = join(subbase_dir, "inv.nonlin_ddf.map.nii.gz")
 
-    composed_ddf_file = subbase+".composed_ddf.map.nii.gz"
-    inv_composed_ddf_file = subbase+".inv.composed_ddf.map.nii.gz"
-    full_deformed_subject = subbase+".full.deformed.nii.gz"
+    composed_ddf_file = join(subbase_dir, "composed_ddf.map.nii.gz")
+    inv_composed_ddf_file = join(subbase_dir, "inv.composed_ddf.map.nii.gz")
 
-
-    fixed_image = sitk.ReadImage(inputT2, sitk.sitkFloat32)
-    moving_image = sitk.ReadImage(atlas_brain, sitk.sitkFloat32)
+    fixed_image = sitk.ReadImage(fixed, sitk.sitkFloat32)
+    moving_image = sitk.ReadImage(moving, sitk.sitkFloat32)
     
     initial_transform = sitk.CenteredTransformInitializer(
         fixed_image,
@@ -71,13 +71,13 @@ def nonlin_register(inputT2, atlas_brain, centered_atlas_nonlinreg, linloss='cc'
 
     moved_image = sitk.Resample(moving_image, fixed_image, initial_transform, sitk.sitkLinear, 0.0, moving_image.GetPixelID())
 
-    sitk.WriteImage(moved_image, centered_atlas)
+    sitk.WriteImage(moved_image, centered_moving)
 
     aligner = Aligner()
     aligner.affine_reg(
-        fixed_file=inputT2,
-        moving_file=centered_atlas,
-        output_file=centered_atlas_linreg,
+        fixed_file=fixed,
+        moving_file=centered_moving,
+        output_file=centered_moving_linreg,
         ddf_file=lin_reg_map_file,
         loss=linloss,
         device=device,
@@ -89,9 +89,9 @@ def nonlin_register(inputT2, atlas_brain, centered_atlas_nonlinreg, linloss='cc'
 
     nonlin_reg = Warper()
     nonlin_reg.nonlinear_reg(
-        target_file=inputT2,
-        moving_file=centered_atlas,
-        output_file=centered_atlas_nonlinreg,
+        target_file=fixed,
+        moving_file=centered_moving,
+        output_file=centered_moving_nonlinreg,
         ddf_file=nonlin_reg_map_file,
         inv_ddf_file=inv_nonlin_reg_map_file,
         reg_penalty=1,
@@ -110,13 +110,13 @@ def nonlin_register(inputT2, atlas_brain, centered_atlas_nonlinreg, linloss='cc'
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Runs rodreg full registration pipeline.')
-    parser.add_argument('-i', type=str, help='Input subject file.', required=True)
-    parser.add_argument('-r', type=str, help='Reference image file prefix.', required=True)
+    parser = argparse.ArgumentParser(description='Runs rodreg full registration pipeline')
+    parser.add_argument('-m', type=str, help='Input subject file', required=True)
+    parser.add_argument('-f', type=str, help='Reference image file ', required=True)
     parser.add_argument('-o', type=str, help='Output file name (non-linearly warped image).', required=True)
-    parser.add_argument('--linloss', type=str, help='Type of loss function for linear registration.', 
+    parser.add_argument('--linloss', type=str, help='Type of loss function for linear registration', 
                         default = 'cc', choices=['mse', 'cc', 'mi'], required=False)
-    parser.add_argument('--nonlinloss', type=str, help='Type of loss function for non-linear registration.', 
+    parser.add_argument('--nonlinloss', type=str, help='Type of loss function for non-linear registration', 
                         default = 'cc', choices=['mse', 'cc', 'mi'], required=False)
     parser.add_argument(
         "--le", type=int, default=1500, help="Maximum interations for linear registration"
@@ -131,9 +131,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     nonlin_register(
-        inputT2=args.i,
-        atlas_brain=args.r,
-        centered_atlas_nonlinreg=args.o,
+        fixed=args.f,
+        moving=args.m,
+        centered_moving_nonlinreg=args.o,
         linloss=args.linloss,
         nonlinloss=args.nonlinloss,
         le=args.le,
