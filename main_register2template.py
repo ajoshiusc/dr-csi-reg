@@ -16,6 +16,8 @@ for te in all_te:
         if os.path.exists(nii_file):
 
             nonlin_register(
-                nii_file, template, nii_file.replace(".nii.gz", ".reg.nii.gz")
+                moving=nii_file,
+                fixed=template,
+                output=nii_file.replace(".nii.gz", ".reg.nii.gz"),
             )
             print(f"{nii_file}.reg.nii.gz saved")

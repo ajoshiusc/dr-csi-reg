@@ -21,7 +21,7 @@ from applydeformation import applydeformation
 from invertdeformationfield import invertdeformationfield
 
 
-def nonlin_register(moving, fixed, centered_moving_nonlinreg, linloss='cc', nonlinloss='cc', le=1500, ne=5000, device='cuda'):
+def nonlin_register(moving, fixed, output, linloss='cc', nonlinloss='cc', le=1500, ne=5000, device='cuda'):
     if not os.path.exists(fixed):
         print('ERROR: file', fixed, 'does not exist.')
         sys.exit(2)
@@ -91,7 +91,7 @@ def nonlin_register(moving, fixed, centered_moving_nonlinreg, linloss='cc', nonl
     nonlin_reg.nonlinear_reg(
         target_file=fixed,
         moving_file=centered_moving,
-        output_file=centered_moving_nonlinreg,
+        output_file=output,
         ddf_file=nonlin_reg_map_file,
         inv_ddf_file=inv_nonlin_reg_map_file,
         reg_penalty=1,
@@ -133,7 +133,7 @@ if __name__ == "__main__":
     nonlin_register(
         fixed=args.f,
         moving=args.m,
-        centered_moving_nonlinreg=args.o,
+        output=args.o,
         linloss=args.linloss,
         nonlinloss=args.nonlinloss,
         le=args.le,
