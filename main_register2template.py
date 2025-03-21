@@ -2,9 +2,9 @@
 
 import sys
 
+from registration import nonlin_register
 
-
-template = ""
+template = "/deneb_disk/data_from_justin_03_11_2025/Data to be shared/Patient1/data/TE160_bval500.nii.gz"
 
 subject = 'Patient1'
 data_dir = f'/deneb_disk/data_from_justin_03_11_2025/Data to be shared/{subject}/data'
@@ -15,7 +15,8 @@ for te in all_te:
     for b in [0, 1000, 2000, 3000]:
         nii_file = f'{data_dir}/TE{te}_bval{b}.nii.gz'
 
-        
+        nonlin_register(nii_file, template, f'{nii_file}.reg.nii.gz')
+        print(f'{nii_file}.reg.nii.gz saved')
         # Register the png file to the template
         # Use the following command to register the png file to the template
         # register2template.sh -i <input_file> -o <output_file> -t <template_file>

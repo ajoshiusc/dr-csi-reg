@@ -5,6 +5,7 @@ import numpy as np
 import scipy.io as sio
 import nibabel as nib
 from nilearn import plotting
+import SimpleITK as sitk
 
 subject = 'Patient1'
 
@@ -36,9 +37,9 @@ for te in all_te:
     # create and save multiple 3D nifti images from the 4D data
     img_data = mat['img']
     for i, b in enumerate(b_all):
-        nii = nib.Nifti1Image(img_data[..., i], np.eye(4))
-        nii.header.set_zooms(res)
-        nib.save(nii, f'{data_dir}/TE{te}_bval{b}.nii.gz')
+        img_sitk = sitk.GetImageFromArray(img_data[..., i])
+        img_sitk.SetSpacing([res[2], res[0], res[1]]) # Slice is first in sitk
+        sitk.WriteImage(img_sitk, f'{data_dir}/TE{te}_bval{b}.nii.gz')
         print(f'{data_dir}/TE{te}_bval{b}.nii.gz saved')
 
 
@@ -48,6 +49,8 @@ for te in all_te:
         png_file = f'TE{te}_bval{b}.png'
         nii_img = nib.load(nii_file)
         cut_coords = [coord / 2 for coord in nii_img.shape[:3]]
+        cut_coords = np.array(cut_coords) * np.array(nii_img.affine.diagonal()[:3])
+        #cut_coords = [cut_coords[2], cut_coords[1], cut_coords[0]]
         plotting.plot_anat(nii_file, display_mode='ortho', cut_coords=cut_coords, output_file=png_file)
         #display.close()
         print(f'{png_file} saved')

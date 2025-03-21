@@ -19,10 +19,9 @@ from warper import Warper
 from composedeformations import composedeformation
 from applydeformation import applydeformation
 from invertdeformationfield import invertdeformationfield
-from jacobian import jacobian
 
 
-def nonlin_register(inputT2, atlas_brain, atlas_label, centered_atlas_nonlinreg, centered_atlas_nonlinreg_labels, inv_jacobian_full_atlas_det_file, linloss='cc', nonlinloss='cc', le=1500, ne=5000, device='cuda'):
+def nonlin_register(inputT2, atlas_brain, centered_atlas_nonlinreg, linloss='cc', nonlinloss='cc', le=1500, ne=5000, device='cuda'):
     if not os.path.exists(inputT2):
         print('ERROR: file', inputT2, 'does not exist.')
         sys.exit(2)
@@ -31,39 +30,29 @@ def nonlin_register(inputT2, atlas_brain, atlas_label, centered_atlas_nonlinreg,
         print('ERROR: file', atlas_brain, 'does not exist.')
         sys.exit(2)
 
-    if not os.path.exists(atlas_label):
-        print('ERROR: file', atlas_label, 'does not exist.')
-        sys.exit(2)
 
     subID = inputT2.split('.')[0]
     subbase = subID + '.rodreg'
 
 
     centered_atlas = subbase+".atlas.cent.nii.gz"
-    centered_atlas_labels = subbase+".atlas.cent.label.nii.gz"
     cent_transform_file = subbase+".cent.reg.tfm"
     inv_cent_transform_file = subbase+".cent.reg.inv.tfm"
 
     centered_atlas_linreg = subbase+".atlas.lin.nii.gz"
-    centered_atlas_linreg_labels = subbase+".atlas.lin.label.nii.gz"
     lin_reg_map_file = subbase+".lin_ddf.map.nii.gz"
 
     nonlin_reg_map_file = subbase+".nonlin_ddf.map.nii.gz"
     inv_nonlin_reg_map_file = subbase+".inv.nonlin_ddf.map.nii.gz"
-    jac_det_file = subbase+".warp-Jacobian.nii.gz"
-    inv_jac_det_file = subbase+".inv.warp-Jacobian.subj_space.nii.gz"
 
     composed_ddf_file = subbase+".composed_ddf.map.nii.gz"
     inv_composed_ddf_file = subbase+".inv.composed_ddf.map.nii.gz"
-    full_deformed_atlas = subbase+".atlas.full.deformed.nii.gz"
     full_deformed_subject = subbase+".full.deformed.nii.gz"
-    subject_deformed2_atlas = subbase+".deformed2.atlas.nii.gz"
 
-    jacobian_full_det_file = subbase+".jacobian_det.nii.gz"
-    inv_jacobian_full_det_file = subbase+".inv.jacobian_det.nii.gz"
 
     fixed_image = sitk.ReadImage(inputT2, sitk.sitkFloat32)
     moving_image = sitk.ReadImage(atlas_brain, sitk.sitkFloat32)
+    
     initial_transform = sitk.CenteredTransformInitializer(
         fixed_image,
         moving_image,
@@ -71,8 +60,7 @@ def nonlin_register(inputT2, atlas_brain, atlas_label, centered_atlas_nonlinreg,
         sitk.CenteredTransformInitializerFilter.GEOMETRY,
     )
 
-    final_transform, _ = multires_registration(
-        fixed_image, moving_image, initial_transform)
+    final_transform, _ = multires_registration(fixed_image, moving_image, initial_transform)
 
     # save the transformation in a file
     sitk.WriteTransform(final_transform, cent_transform_file)
@@ -81,18 +69,9 @@ def nonlin_register(inputT2, atlas_brain, atlas_label, centered_atlas_nonlinreg,
     inv_transform = final_transform.GetInverse()
     sitk.WriteTransform(inv_transform, inv_cent_transform_file)
 
-    moved_image = sitk.Resample(moving_image, fixed_image, final_transform)
+    moved_image = sitk.Resample(moving_image, fixed_image, initial_transform, sitk.sitkLinear, 0.0, moving_image.GetPixelID())
 
     sitk.WriteImage(moved_image, centered_atlas)
-
-    moving_image = sitk.ReadImage(atlas_label, sitk.sitkUInt16)
-    moved_image = sitk.Resample(
-        moving_image,
-        fixed_image,
-        transform=final_transform,
-        interpolator=sitk.sitkNearestNeighbor,
-    )
-    sitk.WriteImage(moved_image, centered_atlas_labels)
 
     aligner = Aligner()
     aligner.affine_reg(
@@ -108,21 +87,10 @@ def nonlin_register(inputT2, atlas_brain, atlas_label, centered_atlas_nonlinreg,
     disp_field, meta = LoadImage(image_only=False)(lin_reg_map_file)
     disp_field = EnsureChannelFirst()(disp_field)
 
-    at1, meta = LoadImage(image_only=False)(centered_atlas_labels)
-    at_lab = EnsureChannelFirst()(at1)
-
-    warped_lab = apply_warp(
-        disp_field[None,], at_lab[None,], at_lab[None,], interp_mode="nearest"
-    )
-    nb.save(
-        nb.Nifti1Image(warped_lab[0, 0].detach().cpu().numpy(), at_lab.affine),
-        centered_atlas_linreg_labels,
-    )
-
     nonlin_reg = Warper()
     nonlin_reg.nonlinear_reg(
         target_file=inputT2,
-        moving_file=centered_atlas_linreg,
+        moving_file=centered_atlas,
         output_file=centered_atlas_nonlinreg,
         ddf_file=nonlin_reg_map_file,
         inv_ddf_file=inv_nonlin_reg_map_file,
@@ -131,25 +99,11 @@ def nonlin_register(inputT2, atlas_brain, atlas_label, centered_atlas_nonlinreg,
         lr=1e-4,
         max_epochs=ne,
         loss=nonlinloss,
-        jacobian_determinant_file=jac_det_file,
-        inv_jacobian_determinant_file=inv_jac_det_file,
         device=device,
     )
 
     disp_field, meta = LoadImage(image_only=False)(nonlin_reg_map_file)
     disp_field = EnsureChannelFirst()(disp_field)
-
-    at1, meta = LoadImage(image_only=False)(centered_atlas_linreg_labels)
-    at_lab = EnsureChannelFirst()(at1)
-
-    warped_lab = apply_warp(
-        disp_field[None,], at_lab[None,], at_lab[None,], interp_mode="nearest"
-    )
-    nb.save(
-        nb.Nifti1Image(
-            np.uint16(warped_lab[0, 0].detach().cpu().numpy()), at_lab.affine),
-        centered_atlas_nonlinreg_labels,
-    )
 
     composedeformation(nonlin_reg_map_file, lin_reg_map_file, composed_ddf_file)
 
@@ -160,9 +114,6 @@ def nonlin_register(inputT2, atlas_brain, atlas_label, centered_atlas_nonlinreg,
     sitk.WriteImage(moved_image, centered_atlas)
 
     applydeformation(centered_atlas, composed_ddf_file, full_deformed_atlas)
-
-    # Jacobian of the forward field
-    jacobian(composed_ddf_file, jacobian_full_det_file)
 
     # Invert the composed deformation field this takes about 5-7 min
     invertdeformationfield(composed_ddf_file, inv_composed_ddf_file)
@@ -175,25 +126,13 @@ def nonlin_register(inputT2, atlas_brain, atlas_label, centered_atlas_nonlinreg,
     moved_image = sitk.Resample(moving_image, fixed_image, inv_cent_transform)
     sitk.WriteImage(moved_image, subject_deformed2_atlas)
 
-    # Calculate jacobian of the deformation field
-    jacobian(inv_composed_ddf_file, inv_jacobian_full_det_file)
-
-    if inv_jacobian_full_atlas_det_file:
-        # apply centering to the Jacobian
-        moving_image = sitk.ReadImage(inv_jacobian_full_det_file, sitk.sitkFloat32)
-        fixed_image = sitk.ReadImage(atlas_brain, sitk.sitkFloat32)
-        inv_cent_transform = sitk.ReadTransform(inv_cent_transform_file)
-        moved_image = sitk.Resample(moving_image, fixed_image, inv_cent_transform)
-        sitk.WriteImage(moved_image, inv_jacobian_full_atlas_det_file)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Runs rodreg full registration pipeline.')
     parser.add_argument('-i', type=str, help='Input subject file.', required=True)
     parser.add_argument('-r', type=str, help='Reference image file prefix.', required=True)
-    parser.add_argument('--o', type=str, help='Output file name (non-linearly warped image).', required=True)
-    parser.add_argument('--l', type=str, help='Output label file name.', required=True)
-    parser.add_argument('--j', type=str, help='Output inverse jacobian (in the reference image dimension) file name.', required=False)
+    parser.add_argument('-o', type=str, help='Output file name (non-linearly warped image).', required=True)
     parser.add_argument('--linloss', type=str, help='Type of loss function for linear registration.', 
                         default = 'cc', choices=['mse', 'cc', 'mi'], required=False)
     parser.add_argument('--nonlinloss', type=str, help='Type of loss function for non-linear registration.', 
@@ -212,11 +151,8 @@ if __name__ == "__main__":
 
     nonlin_register(
         inputT2=args.i,
-        atlas_brain=args.r + '.brain.nii.gz',
-        atlas_label=args.r + '.label.nii.gz',
+        atlas_brain=args.r,
         centered_atlas_nonlinreg=args.o,
-        centered_atlas_nonlinreg_labels=args.l,
-        inv_jacobian_full_atlas_det_file=args.j,
         linloss=args.linloss,
         nonlinloss=args.nonlinloss,
         le=args.le,
