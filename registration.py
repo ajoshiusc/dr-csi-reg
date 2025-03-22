@@ -31,7 +31,7 @@ def nonlin_register(moving, fixed, output, linloss='cc', nonlinloss='cc', le=150
         sys.exit(2)
 
 
-    subID = fixed.split('.')[0]
+    subID = moving.split('.')[0]
     subbase = subID + '.rodreg'
 
     subbase_dir = subbase + "_dir"
@@ -44,6 +44,7 @@ def nonlin_register(moving, fixed, output, linloss='cc', nonlinloss='cc', le=150
     centered_moving_linreg = join(subbase_dir, "moving.lin.nii.gz")
     lin_reg_map_file = join(subbase_dir, "lin_ddf.map.nii.gz")
 
+    centered_moving_nonlinreg = join(subbase_dir, "moving.nonlin.nii.gz")
     nonlin_reg_map_file = join(subbase_dir, "nonlin_ddf.map.nii.gz")
     inv_nonlin_reg_map_file = join(subbase_dir, "inv.nonlin_ddf.map.nii.gz")
 
@@ -90,8 +91,8 @@ def nonlin_register(moving, fixed, output, linloss='cc', nonlinloss='cc', le=150
     nonlin_reg = Warper()
     nonlin_reg.nonlinear_reg(
         target_file=fixed,
-        moving_file=centered_moving,
-        output_file=output,
+        moving_file=centered_moving_linreg,
+        output_file=centered_moving_nonlinreg,
         ddf_file=nonlin_reg_map_file,
         inv_ddf_file=inv_nonlin_reg_map_file,
         reg_penalty=1,
@@ -104,6 +105,11 @@ def nonlin_register(moving, fixed, output, linloss='cc', nonlinloss='cc', le=150
 
     
     composedeformation(nonlin_reg_map_file, lin_reg_map_file, composed_ddf_file)
+
+    # Apply the composed deformation field to the moving image
+    applydeformation(centered_moving, composed_ddf_file, output)
+
+
 
     # Invert the composed deformation field this takes about 5-7 min
     invertdeformationfield(composed_ddf_file, inv_composed_ddf_file)
