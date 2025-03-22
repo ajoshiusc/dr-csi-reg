@@ -11,8 +11,8 @@ data_dir = f"/deneb_disk/data_from_justin_03_11_2025/Data to be shared/{subject}
 all_te = [65, 80, 105, 130, 160, 200]
 
 def process_file(te_b):
-    te, b = te_b
-    nii_file = f"{data_dir}/TE{te}_bval{b}.nii.gz"
+    te1, b = te_b
+    nii_file = f"{data_dir}/TE{te1}_bval{b}.nii.gz"
 
     if os.path.exists(nii_file):
         nonlin_register(
