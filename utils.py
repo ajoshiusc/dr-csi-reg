@@ -8,8 +8,8 @@ def multires_registration(fixed_image, moving_image, initial_transform):
     registration_method = sitk.ImageRegistrationMethod()
     registration_method.SetMetricAsMattesMutualInformation(
         numberOfHistogramBins=50)
-    registration_method.SetMetricSamplingStrategy(registration_method.RANDOM)
-    registration_method.SetMetricSamplingPercentage(0.01)
+    registration_method.SetMetricSamplingStrategy(registration_method.NONE)
+    #registration_method.SetMetricSamplingPercentage(0.01)
     registration_method.SetInterpolator(sitk.sitkLinear)
     registration_method.SetOptimizerAsGradientDescent(
         learningRate=1.0, numberOfIterations=100, estimateLearningRate=registration_method.Once)
