@@ -6,3 +6,4 @@ matplotlib
 simpleitk
 monai
 tqdm
+opencv-python

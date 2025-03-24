@@ -30,6 +30,6 @@ for te in all_te:
         img_data.append(img_array)
 
     img_data = np.stack(img_data, axis=-1)
-    new_mat_file = f"{data_out_dir}/Modified_TE{te}.mat"
+    new_mat_file = f"{data_out_dir}/TE{te}.reg.mat"
     sio.savemat(new_mat_file, {"img": img_data, "b": b_all})
     print(f"{new_mat_file} saved")
