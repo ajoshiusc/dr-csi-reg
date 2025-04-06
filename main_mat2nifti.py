@@ -10,9 +10,9 @@ import SimpleITK as sitk
 #subject = 'Patient1'
 #res = [2.3,2.3,5]
 #all_te = [65, 80, 105, 130, 160, 200]
-subject = "wip_patient2"
+subject = "Patient1" #"wip_patient2"
 res = [2.3, 2.3, 5]
-all_te = [63, 80, 105, 130, 160, 200, 300]
+#all_te = [63, 80, 105, 130, 160, 200, 300]
 
 data_dir = f'/project/ajoshi_27/data/data_from_justin_03_11_2025/Data to be shared/{subject}/data'
 
