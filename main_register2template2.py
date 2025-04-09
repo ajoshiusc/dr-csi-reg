@@ -20,7 +20,7 @@ def process_file(te_b):
 subject_list = ["wip_patient2", "Patient1", "Sub1 (H)", "wip_sub6 (H)", "wip_sub8 (H)"]
 subject1 = subject_list[1]
 
-template = f"/project/ajoshi_27/data/data_from_justin_03_11_2025/Data to be shared/{subject}/data/TE160_bval500.nii.gz"
+template = f"/project/ajoshi_27/data/data_from_justin_03_11_2025/Data to be shared/{subject1}/data/TE160_bval500.nii.gz"
 
 
 for subject in [subject1]:
