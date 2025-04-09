@@ -7,16 +7,32 @@ import nibabel as nib
 from nilearn import plotting
 import SimpleITK as sitk
 
-subject = "Patient1"
+subject = "wip_sub8 (H)"
+
+data_dir = f'/project/ajoshi_27/data/data_from_justin_03_11_2025/Data to be shared/{subject}/data'
+data_out_dir = f'/project/ajoshi_27/data/data_from_justin_03_11_2025/Data to be shared/{subject}/data_output'
+
+os.makedirs(data_out_dir)
 
 res = [2.3, 2.3, 5]
-all_te = [65, 80, 105, 130, 160, 200]
+
+# load the list of mat files and get the values of TEs from the file names
+all_te = []
+
+for filename in os.listdir(data_dir):
+    if filename.endswith('.mat'):
+        # extract the TE value from the filename
+        te = int(filename.split('TE')[1].split('.')[0])
+        all_te.append(te)
+all_te = sorted(all_te)
+#print all the TE values
+print('TE values:', all_te)
 
 
 # Read back all the NIfTI files and write back to original .mat files with modified prefix
 for te in all_te:
-    data_dir = f"/deneb_disk/data_from_justin_03_11_2025/Data to be shared/{subject}/data"
-    data_out_dir = f"/deneb_disk/data_from_justin_03_11_2025/Data to be shared/{subject}/data_output"
+    
+
 
     mat_file = f"{data_dir}/TE{te}.mat"
     mat = sio.loadmat(mat_file)
