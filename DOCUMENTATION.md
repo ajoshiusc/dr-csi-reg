@@ -337,4 +337,3 @@ All scripts include comprehensive error checking and detailed status reporting. 
 - Registered files: `original_name.reg.nii.gz`
 - Metadata files: `*_metadata.txt`
 
-This documentation provides complete guidance for using the spectral data conversion and registration pipeline.
