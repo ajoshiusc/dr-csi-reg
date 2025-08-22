@@ -87,20 +87,6 @@ The pipeline automatically generates:
 - Orthogonal view visualizations
 - Processing metadata and statistics
 
-## ✅ Validation
-
-- **Round-trip accuracy**: 100% data preservation verified
-- **Metadata preservation**: Resolution and dimensions maintained
-- **Error handling**: Comprehensive validation and reporting
-- **Clean architecture**: Modular, testable, well-documented code
-
-## 🚦 Status
-
-- ✅ Spectral data conversion (.mat ↔ NIfTI)
-- ✅ Generic registration with auto-template selection
-- ✅ Parallel processing and comprehensive logging
-- ✅ Round-trip verification and data integrity
-- ✅ Clean architecture and documentation
 
 ## 📋 Requirements
 
