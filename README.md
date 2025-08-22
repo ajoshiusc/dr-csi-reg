@@ -1,6 +1,6 @@
 # Spectral MRI Data Processing Pipeline
 
-A comprehensive Python toolkit for converting and processing spectral MRI data between MATLAB (.mat) and NIfTI formats, with advanced registration capabilities.
+A Python toolkit for converting and processing spectral MRI data between MATLAB (.mat) and NIfTI formats, with advanced registration capabilities.
 
 ## 🚀 Quick Start
 
