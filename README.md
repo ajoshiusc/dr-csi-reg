@@ -96,5 +96,3 @@ The pipeline automatically generates:
 - SimpleITK, scipy, nibabel, nilearn, numpy
 
 ---
-
-*This pipeline provides a complete solution for spectral MRI data processing with modern Python practices, comprehensive error handling, and perfect data preservation.*
