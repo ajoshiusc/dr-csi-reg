@@ -1,0 +1,11 @@
+Data from data_wip_patient2.mat
+Original data shape: (31, 104, 52, 12)
+Resolution: [1 1 1]
+Spatial dimensions: [104  52  12]
+Number of volumes: 12
+Transform matrix:
+[[1 0 0 0]
+ [0 1 0 0]
+ [0 0 1 0]
+ [0 0 0 1]]
+Spacing used: [1.0, 1.0, 1.0]
