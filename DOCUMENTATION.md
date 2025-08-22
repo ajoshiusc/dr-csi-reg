@@ -7,9 +7,8 @@ This repository contains three main scripts for processing spectral MRI data: co
 1. [main_mat2nifti_spectral.py](#main_mat2nifti_spectralpy) - Forward Conversion (.mat → NIfTI)
 2. [main_nifti2mat_spectral.py](#main_nifti2mat_spectralpy) - Reverse Conversion (NIfTI → .mat)
 3. [main_register2template_enhanced.py](#main_register2template_enhancedpy) - Registration
-4. [verify_roundtrip_conversion.py](#verify_roundtrip_conversionpy) - Verification
-5. [Installation & Setup](#installation--setup)
-6. [Usage Examples](#usage-examples)
+4. [Installation & Setup](#installation--setup)
+5. [Usage Examples](#usage-examples)
 
 ---
 
@@ -223,26 +222,6 @@ Using 4 parallel processes
 ✅ Successfully registered: spectral_point_000.reg.nii.gz
 ✅ Successfully registered: spectral_point_001.reg.nii.gz
 ...
-```
-
----
-
-## verify_roundtrip_conversion.py
-
-### Purpose
-Independent verification script that tests the accuracy of round-trip conversion (.mat → NIfTI → .mat).
-
-### Key Features
-- ✅ **Data Integrity Verification**: Ensures perfect data preservation
-- ✅ **Comprehensive Analysis**: Checks shapes, values, metadata
-- ✅ **Statistical Reporting**: Detailed difference analysis
-- ✅ **Independent Operation**: Clean separation from conversion scripts
-
-### Usage
-```bash
-python verify_roundtrip_conversion.py
-```
-
 ---
 
 ## Installation & Setup
