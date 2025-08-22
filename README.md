@@ -22,11 +22,11 @@ python main_nifti2mat_spectral.py
 
 ## 📁 Core Scripts
 
-| Script | Purpose | Key Features |
-|--------|---------|--------------|
-| [`main_mat2nifti_spectral.py`](DOCUMENTATION.md#main_mat2nifti_spectralpy) | .mat → NIfTI conversion | Auto resolution reading, visualizations, metadata |
-| [`main_nifti2mat_spectral.py`](DOCUMENTATION.md#main_nifti2mat_spectralpy) | NIfTI → .mat conversion | Perfect reconstruction, round-trip preservation |
-| [`main_register2template_enhanced.py`](DOCUMENTATION.md#main_register2template_enhancedpy) | Generic registration | Auto-template selection, parallel processing |
+| Script | Purpose |
+|--------|---------|
+| [`main_mat2nifti_spectral.py`](DOCUMENTATION.md#main_mat2nifti_spectralpy) | .mat → NIfTI conversion |
+| [`main_nifti2mat_spectral.py`](DOCUMENTATION.md#main_nifti2mat_spectralpy) | NIfTI → .mat conversion |
+| [`main_register2template_enhanced.py`](DOCUMENTATION.md#main_register2template_enhancedpy) | Generic registration |
 
 ## 🎯 Key Features
 
