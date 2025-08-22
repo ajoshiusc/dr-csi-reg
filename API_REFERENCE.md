@@ -98,28 +98,6 @@ Process single file registration (internal function for parallel processing).
 
 ---
 
-### verify_roundtrip_conversion.py
-
-#### `verify_roundtrip_conversion(original_mat, reconstructed_mat)`
-Verify round-trip conversion accuracy.
-
-**Parameters:**
-- `original_mat` (str): Path to original .mat file
-- `reconstructed_mat` (str): Path to reconstructed .mat file
-
-**Returns:**
-- `dict`: Verification results with detailed statistics
-
-**Example:**
-```python
-from verify_roundtrip_conversion import verify_roundtrip_conversion
-
-results = verify_roundtrip_conversion("original.mat", "reconstructed.mat")
-print(f"Data preserved: {results['data_identical']}")
-```
-
----
-
 ## Return Value Structures
 
 ### process_directory_registration() Results
@@ -145,18 +123,6 @@ print(f"Data preserved: {results['data_identical']}")
     'output_file': str,        # Output file path
     'success': bool,           # Registration successful
     'message': str             # Status/error message
-}
-```
-
-### verify_roundtrip_conversion() Results
-```python
-{
-    'data_identical': bool,        # Data arrays identical
-    'shape_identical': bool,       # Array shapes match
-    'resolution_identical': bool,  # Resolution values match
-    'max_difference': float,       # Maximum data difference
-    'mean_difference': float,      # Mean absolute difference
-    'metadata_comparison': dict    # Detailed metadata comparison
 }
 ```
 

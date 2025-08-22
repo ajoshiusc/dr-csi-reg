@@ -27,7 +27,6 @@ python main_nifti2mat_spectral.py
 | [`main_mat2nifti_spectral.py`](DOCUMENTATION.md#main_mat2nifti_spectralpy) | .mat → NIfTI conversion | Auto resolution reading, visualizations, metadata |
 | [`main_nifti2mat_spectral.py`](DOCUMENTATION.md#main_nifti2mat_spectralpy) | NIfTI → .mat conversion | Perfect reconstruction, round-trip preservation |
 | [`main_register2template_enhanced.py`](DOCUMENTATION.md#main_register2template_enhancedpy) | Generic registration | Auto-template selection, parallel processing |
-| [`verify_roundtrip_conversion.py`](DOCUMENTATION.md#verify_roundtrip_conversionpy) | Data integrity verification | Independent validation, statistical analysis |
 
 ## 🎯 Key Features
 
@@ -69,10 +68,6 @@ python main_register2template_enhanced.py \
     patient2_registration_output \
     --processes 4
 # → Creates registered .reg.nii.gz files
-
-# Verify data integrity (optional)
-python verify_roundtrip_conversion.py
-# → Reports 100% data preservation accuracy
 ```
 
 ## 💡 Advanced Usage
