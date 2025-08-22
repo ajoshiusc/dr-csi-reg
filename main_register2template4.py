@@ -16,12 +16,14 @@ def process_file(te_b):
         print(f"{nii_file}.reg.nii.gz saved")
 
 
-template = "/project/ajoshi_27/data/data_from_justin_03_11_2025/Data to be shared/Patient1/data/TE160_bval500.nii.gz"
 
 subject_list = ["wip_patient2", "Patient1", "Sub1 (H)", "wip_sub6 (H)", "wip_sub8 (H)"]
+subject1 = subject_list[3]
+
+template = f"/project/ajoshi_27/data/data_from_justin_03_11_2025/Data to be shared/{subject1}/data/TE160_bval500.nii.gz"
 
 
-for subject in [subject_list[3]]:
+for subject in [subject1]:
 
     #subject = "wip_patient2"
     res = [2.3, 2.3, 5]
