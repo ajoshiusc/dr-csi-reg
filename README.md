@@ -28,16 +28,6 @@ python main_nifti2mat_spectral.py
 | [`main_nifti2mat_spectral.py`](DOCUMENTATION.md#main_nifti2mat_spectralpy) | NIfTI → .mat conversion |
 | [`main_register2template_enhanced.py`](DOCUMENTATION.md#main_register2template_enhancedpy) | Generic registration |
 
-## 🎯 Key Features
-
-- **🔄 Bidirectional Conversion**: Perfect round-trip .mat ↔ NIfTI conversion
-- **📊 Spectral Data Support**: Handles (N, X, Y, Z) spectral dimensions correctly
-- **🤖 Auto-Template Selection**: Intelligently selects central file as registration template
-- **⚡ Parallel Processing**: Multi-core registration with configurable processes
-- **📋 Comprehensive Logging**: Detailed metadata and processing reports
-- **🎨 Visualizations**: Automatic PNG previews of spectral data
-- **✅ Data Integrity**: Built-in verification and validation
-
 ## 📖 Documentation
 
 See [DOCUMENTATION.md](DOCUMENTATION.md) for complete usage guide, API reference, and examples.
