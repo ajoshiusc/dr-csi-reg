@@ -309,8 +309,11 @@ All functions include comprehensive error handling:
 - Registered files: `original_name.reg.nii.gz`
 - Metadata files: `*_metadata.txt`
 
+<<<<<<< HEAD
 ### Function Naming Conventions
 - **convert_**: Functions that transform data between formats
 - **register_**: Functions that perform image registration
 - **perform_**: Functions that execute core algorithms
 - Descriptive names that clearly indicate purpose and scope
+=======
+>>>>>>> 72f2a45e84f2d49749850497bba2559581fda6aa

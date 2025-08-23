@@ -1,6 +1,6 @@
-# Spectral MRI Data Processing Pipeline
+# Spectral MRI Data Registration Pipeline
 
-A comprehensive Python toolkit for converting and processing spectral MRI data between MATLAB (.mat) and NIfTI formats, with advanced registration capabilities.
+A Python toolkit for converting and processing spectral MRI data with registration capabilities.
 
 ## 🚀 Quick Start
 
@@ -87,20 +87,6 @@ The pipeline automatically generates:
 - Orthogonal view visualizations
 - Processing metadata and statistics
 
-## ✅ Validation
-
-- **Round-trip accuracy**: 100% data preservation verified
-- **Metadata preservation**: Resolution and dimensions maintained
-- **Error handling**: Comprehensive validation and reporting
-- **Clean architecture**: Modular, testable, well-documented code
-
-## 🚦 Status
-
-- ✅ Spectral data conversion (.mat ↔ NIfTI)
-- ✅ Generic registration with auto-template selection
-- ✅ Parallel processing and comprehensive logging
-- ✅ Round-trip verification and data integrity
-- ✅ Clean architecture and documentation
 
 ## 📋 Requirements
 
@@ -110,5 +96,3 @@ The pipeline automatically generates:
 - SimpleITK, scipy, nibabel, nilearn, numpy
 
 ---
-
-*This pipeline provides a complete solution for spectral MRI data processing with modern Python practices, comprehensive error handling, and perfect data preservation.*
