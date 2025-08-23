@@ -43,7 +43,7 @@ python register_nifti.py data/output_nifti data/registered_output
 # 4. Convert back to .mat (optional verification)
 python convert_nifti_to_mat.py data/registered_output data/final.mat data/data_wip_patient2.mat
 
-# 5. Run complete pipeline example
+# 5.[Optional] Run complete pipeline example
 python examples/run_complete_pipeline.py
 ```
 
