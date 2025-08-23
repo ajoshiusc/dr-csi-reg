@@ -7,12 +7,21 @@ import nibabel as nib
 from nilearn import plotting
 import SimpleITK as sitk
 
-def process_spectral_format(mat_file, output_dir, res=None):
+def convert_spectral_mat_to_nifti(mat_file, output_dir, res=None):
     """
-    Process spectral format .mat file
+    Convert spectral format .mat file to individual NIfTI files
+    
     The data shape is (N, X, Y, Z) where:
     - N is the spectral dimension (number of spectral points)
     - X, Y, Z are the spatial dimensions
+    
+    Args:
+        mat_file (str): Path to input .mat file
+        output_dir (str): Directory to save NIfTI files
+        res (list): Optional resolution override [x, y, z]
+    
+    Returns:
+        dict: Conversion results with statistics
     """
     print("Processing spectral format file...")
     
@@ -125,7 +134,7 @@ if __name__ == "__main__":
     print("Resolution will be read from mat file")
     
     # Process the data (resolution will be read from mat file)
-    num_spectral = process_spectral_format(mat_file, output_dir)
+    num_spectral = convert_spectral_mat_to_nifti(mat_file, output_dir)
     
     print("\n=== Processing Complete ===")
     if num_spectral and num_spectral > 0:
@@ -134,6 +143,6 @@ if __name__ == "__main__":
         print("✅ PNG visualizations created for first 5 spectral points")
         print("✅ Metadata saved to spectral_metadata.txt")
         print("\nTo convert back to .mat format, run:")
-        print("python main_nifti2mat_spectral.py")
+        print("python spectral_nifti_to_mat.py")
     else:
         print("❌ Processing failed. Check error messages above.")

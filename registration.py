@@ -21,7 +21,20 @@ from applydeformation import applydeformation
 from invertdeformationfield import invertdeformationfield
 
 
-def nonlin_register(moving, fixed, output, linloss='cc', nonlinloss='cc', le=1500, ne=5000, device='cuda'):
+def perform_nonlinear_registration(moving, fixed, output, linloss='cc', nonlinloss='cc', le=1500, ne=5000, device='cuda'):
+    """
+    Perform nonlinear registration between two medical images
+    
+    Args:
+        moving (str): Path to moving image
+        fixed (str): Path to fixed/template image  
+        output (str): Path for output registered image
+        linloss (str): Linear loss function (default: 'cc')
+        nonlinloss (str): Nonlinear loss function (default: 'cc')
+        le (int): Linear epochs (default: 1500)
+        ne (int): Nonlinear epochs (default: 5000)
+        device (str): Computing device (default: 'cuda')
+    """
     if not os.path.exists(fixed):
         print('ERROR: file', fixed, 'does not exist.')
         sys.exit(2)
@@ -136,7 +149,7 @@ if __name__ == "__main__":
         
     args = parser.parse_args()
 
-    nonlin_register(
+    perform_nonlinear_registration(
         fixed=args.f,
         moving=args.m,
         output=args.o,

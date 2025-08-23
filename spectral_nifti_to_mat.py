@@ -7,17 +7,17 @@ import nibabel as nib
 import SimpleITK as sitk
 import glob
 
-def nifti_to_spectral_mat(nifti_dir, output_mat_file, original_mat_file=None):
+def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=None):
     """
     Convert spectral NIfTI files back to the original .mat format
     
     Args:
-        nifti_dir: Directory containing spectral_point_*.nii.gz files
-        output_mat_file: Output .mat file path
-        original_mat_file: Optional original .mat file for metadata comparison
+        nifti_dir (str): Directory containing spectral_point_*.nii.gz files
+        output_mat_file (str): Output .mat file path
+        original_mat_file (str): Optional original .mat file for metadata comparison
     
     Returns:
-        True if conversion successful, False otherwise
+        bool: True if conversion successful, False otherwise
     """
     print(f"Converting NIfTI files from {nifti_dir} to {output_mat_file}")
     
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     print(f"Original .mat file: {original_mat_file}")
     
     # Perform the conversion
-    success = nifti_to_spectral_mat(nifti_input_dir, output_mat_file, original_mat_file)
+    success = convert_spectral_nifti_to_mat(nifti_input_dir, output_mat_file, original_mat_file)
     
     if success:
         print("\\n=== Conversion completed successfully ===")

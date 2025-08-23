@@ -11,22 +11,22 @@ source .venv/bin/activate
 pip install scipy nibabel nilearn SimpleITK numpy matplotlib opencv-python
 
 # 2. Convert spectral .mat to NIfTI files
-python main_mat2nifti_spectral.py
+python spectral_mat_to_nifti.py
 
 # 3. Register all spectral files (auto-selects central template)
-python main_register2template_enhanced.py input_dir output_dir
+python nifti_registration_pipeline.py input_dir output_dir
 
 # 4. Convert back to .mat (optional verification)
-python main_nifti2mat_spectral.py
+python spectral_nifti_to_mat.py
 ```
 
 ## 📁 Core Scripts
 
 | Script | Purpose |
 |--------|---------|
-| [`main_mat2nifti_spectral.py`](DOCUMENTATION.md#main_mat2nifti_spectralpy) | .mat → NIfTI conversion |
-| [`main_nifti2mat_spectral.py`](DOCUMENTATION.md#main_nifti2mat_spectralpy) | NIfTI → .mat conversion |
-| [`main_register2template_enhanced.py`](DOCUMENTATION.md#main_register2template_enhancedpy) | Generic registration |
+| [`spectral_mat_to_nifti.py`](DOCUMENTATION.md#spectral_mat_to_niftipy) | .mat → NIfTI conversion |
+| [`spectral_nifti_to_mat.py`](DOCUMENTATION.md#spectral_nifti_to_matpy) | NIfTI → .mat conversion |
+| [`nifti_registration_pipeline.py`](DOCUMENTATION.md#nifti_registration_pipelinepy) | Generic registration |
 
 ## 📖 Documentation
 
@@ -49,11 +49,11 @@ See [DOCUMENTATION.md](DOCUMENTATION.md) for complete usage guide, API reference
 
 ```bash
 # Convert spectral data to individual NIfTI files
-python main_mat2nifti_spectral.py
+python spectral_mat_to_nifti.py
 # → Creates patient2_nifti_spectral_output/ with 31 files
 
 # Register all files using central file as template
-python main_register2template_enhanced.py \
+python nifti_registration_pipeline.py \
     patient2_nifti_spectral_output \
     patient2_registration_output \
     --processes 4
@@ -64,7 +64,7 @@ python main_register2template_enhanced.py \
 
 **Custom template:**
 ```bash
-python main_register2template_enhanced.py input_dir output_dir \
+python nifti_registration_pipeline.py input_dir output_dir \
     --template custom_template.nii.gz --processes 8
 ```
 

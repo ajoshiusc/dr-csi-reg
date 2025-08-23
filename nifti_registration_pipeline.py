@@ -4,10 +4,10 @@
 import os
 import glob
 import argparse
-from registration import nonlin_register
+from registration import perform_nonlinear_registration
 from multiprocessing import Pool
 
-def process_registration_file(args):
+def register_single_nifti_file(args):
     """
     Process a single file for registration
     
@@ -50,7 +50,7 @@ def process_registration_file(args):
     
     try:
         # Perform registration
-        nonlin_register(
+        perform_nonlinear_registration(
             moving=input_file,
             fixed=template,
             output=output_file,
@@ -68,7 +68,7 @@ def process_registration_file(args):
     
     return result
 
-def process_directory_registration(input_dir, template, output_dir, 
+def register_nifti_directory(input_dir, template, output_dir, 
                                  file_pattern="*.nii.gz", num_processes=12):
     """
     Process registration for all NIfTI files in a directory
@@ -151,7 +151,7 @@ def process_directory_registration(input_dir, template, output_dir,
     }
     
     with Pool(num_processes) as pool:
-        file_results = pool.map(process_registration_file, process_args)
+        file_results = pool.map(register_single_nifti_file, process_args)
     
     # Analyze results
     for result in file_results:
@@ -230,7 +230,7 @@ def main():
         return 1
     
     # Process registration
-    results = process_directory_registration(
+    results = register_nifti_directory(
         input_dir=args.input_dir,
         template=args.template,
         output_dir=args.output_dir,
@@ -267,7 +267,7 @@ def example_usage():
     print("\nThis script registers all NIfTI files in a directory to a template.")
     print("It works with any NIfTI files, not just specific TE/b-value formats.")
     print("\nUsage:")
-    print("  python main_register2template_enhanced.py <input_dir> <output_dir> [options]")
+    print("  python nifti_registration_pipeline.py <input_dir> <output_dir> [options]")
     print("\nExamples:")
     print("  # Auto-select central file as template:")
     print("  python main_register2template_enhanced.py \\")
