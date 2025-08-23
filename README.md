@@ -47,6 +47,25 @@ python convert_nifti_to_mat.py data/registered_output data/final.mat data/data_w
 python examples/run_complete_pipeline.py
 ```
 
+## ⚠️ Important Requirements & Timing
+
+### **GPU Requirement for Registration**
+- **Registration step requires NVIDIA GPU** with CUDA support
+- Minimum 8GB GPU memory recommended for typical spectral datasets
+- CPU-only registration is not currently supported
+
+### **Processing Time Estimates**
+- **Conversion (.mat ↔ NIfTI)**: ~30 seconds - 2 minutes
+- **Registration**: **3-4 hours** for 31 spectral files (GPU-accelerated)
+- Complete pipeline: Allow 4-5 hours total processing time
+
+### **System Requirements**
+- Python 3.11+
+- NVIDIA GPU with CUDA support
+- 8GB+ GPU memory (recommended)
+- 16GB+ system RAM
+- ~5GB free disk space for outputs
+
 ## 📁 Core Scripts
 
 | Script | Purpose |
@@ -88,6 +107,7 @@ python register_nifti.py \
     data/patient2_registration_output \
     --processes 4
 # → Creates registered .reg.nii.gz files
+# ⚠️ WARNING: Requires NVIDIA GPU, takes 3-4 hours for 31 files
 
 # Convert back to .mat format
 python convert_nifti_to_mat.py data/patient2_nifti_spectral_output data/reconstructed.mat data/data_wip_patient2.mat
@@ -128,8 +148,12 @@ The pipeline automatically generates:
 ## 📋 Requirements
 
 - Python 3.11+
+- **NVIDIA GPU with CUDA support** (required for registration)
+- 8GB+ GPU memory (recommended)
+- 16GB+ system RAM 
 - Virtual environment recommended
-- ~2GB RAM for typical spectral datasets
-- SimpleITK, scipy, nibabel, nilearn, numpy
+- Dependencies: SimpleITK, scipy, nibabel, nilearn, numpy, torch, monai
+
+**⚠️ Note:** Registration pipeline requires GPU acceleration and can take 3-4 hours for typical datasets.
 
 ---

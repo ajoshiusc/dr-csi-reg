@@ -127,6 +127,12 @@ def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=
 ### Purpose
 Generic NIfTI registration pipeline that registers all files in a directory to a template, with automatic template selection and parallel processing.
 
+### ⚠️ Important Requirements
+- **NVIDIA GPU with CUDA support required** - CPU-only execution not supported
+- **Processing time**: 3-4 hours for typical spectral datasets (31 files)
+- **Memory requirements**: Minimum 8GB GPU memory recommended
+- **System requirements**: 16GB+ RAM, ~5GB disk space for outputs
+
 ### Key Features
 - ✅ **Auto-Template Selection**: Automatically selects central file as template when none specified
 - ✅ **Generic File Support**: Works with any NIfTI files (not limited to spectral data)

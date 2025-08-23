@@ -15,7 +15,10 @@ import sys
 import subprocess
 
 def run_complete_pipeline():
-    """Run the complete spectral MRI processing pipeline"""
+    """Run the complete spectral MRI processing pipeline
+    
+    ⚠️ WARNING: Registration requires NVIDIA GPU and takes 3-4 hours!
+    """
     
     # Configuration
     data_dir = "data"
@@ -25,6 +28,8 @@ def run_complete_pipeline():
     final_mat = os.path.join(data_dir, "final_reconstructed.mat")
     
     print("=== DR-CSI Spectral MRI Processing Pipeline ===")
+    print("⚠️  WARNING: Registration step requires NVIDIA GPU and takes 3-4 hours!")
+    print("⚠️  Make sure you have sufficient time and GPU resources before proceeding.")
     print()
     
     # Check if input file exists
