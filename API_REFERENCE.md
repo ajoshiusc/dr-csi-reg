@@ -4,6 +4,11 @@
 
 ### spectral_mat_to_nifti.py
 
+**Command Line Usage:**
+```bash
+python spectral_mat_to_nifti.py input_file.mat output_dir [--res x y z]
+```
+
 #### `convert_spectral_mat_to_nifti(mat_file, output_dir, res=None)`
 Convert spectral format .mat file to individual NIfTI files.
 
@@ -29,6 +34,11 @@ print(f"Created {result['num_spectral']} NIfTI files")
 ---
 
 ### spectral_nifti_to_mat.py
+
+**Command Line Usage:**
+```bash
+python spectral_nifti_to_mat.py input_dir output_mat_file [original_mat_file]
+```
 
 #### `convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=None)`
 Convert spectral NIfTI files back to the original .mat format.

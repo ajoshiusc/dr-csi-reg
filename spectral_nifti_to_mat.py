@@ -115,25 +115,60 @@ def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=
         return False
 
 if __name__ == "__main__":
-    # Configuration
-    nifti_input_dir = "/home/ajoshi/Projects/dr-csi-reg/patient2_nifti_spectral_output"
-    output_mat_file = "/home/ajoshi/Projects/dr-csi-reg/reconstructed_from_nifti.mat"
-    original_mat_file = "/home/ajoshi/Projects/dr-csi-reg/data_wip_patient2.mat"
+    import argparse
+    import sys
+    
+    def show_usage():
+        print("=== Spectral NIfTI to .mat Conversion ===")
+        print()
+        print("Usage:")
+        print("  python spectral_nifti_to_mat.py <input_directory> <output_mat_file> [original_mat_file]")
+        print()
+        print("Examples:")
+        print("  python spectral_nifti_to_mat.py patient2_nifti_spectral_output reconstructed.mat")
+        print("  python spectral_nifti_to_mat.py patient2_nifti_spectral_output reconstructed.mat data_wip_patient2.mat")
+        print()
+        print("Arguments:")
+        print("  input_directory    Directory containing spectral_point_*.nii.gz files")
+        print("  output_mat_file    Output .mat file path")
+        print("  original_mat_file  Optional: Original .mat file for metadata comparison")
+        print()
+        print("The script will:")
+        print("  1. Read all spectral_point_*.nii.gz files from input directory")
+        print("  2. Reconstruct the 4D spectral data array")
+        print("  3. Extract resolution from NIfTI file spacing")
+        print("  4. Save reconstructed data to .mat file")
+        print()
+    
+    parser = argparse.ArgumentParser(description='Convert spectral NIfTI files back to .mat format')
+    parser.add_argument('input_dir', help='Directory containing spectral_point_*.nii.gz files')
+    parser.add_argument('output_mat_file', help='Output .mat file path')
+    parser.add_argument('original_mat_file', nargs='?', default=None,
+                       help='Optional: Original .mat file for metadata comparison')
+    
+    # Check if no arguments provided
+    if len(sys.argv) < 3:
+        show_usage()
+        sys.exit(1)
+    
+    args = parser.parse_args()
     
     print("=== Converting Spectral NIfTI Files Back to .mat Format ===")
-    print(f"Input directory: {nifti_input_dir}")
-    print(f"Output .mat file: {output_mat_file}")
-    print(f"Original .mat file: {original_mat_file}")
+    print(f"Input directory: {args.input_dir}")
+    print(f"Output .mat file: {args.output_mat_file}")
+    if args.original_mat_file:
+        print(f"Original .mat file: {args.original_mat_file}")
+    else:
+        print("No original .mat file provided - using default metadata")
     
     # Perform the conversion
-    success = convert_spectral_nifti_to_mat(nifti_input_dir, output_mat_file, original_mat_file)
+    success = convert_spectral_nifti_to_mat(args.input_dir, args.output_mat_file, args.original_mat_file)
     
     if success:
         print("\\n=== Conversion completed successfully ===")
-        print(f"✅ NIfTI files converted back to: {output_mat_file}")
+        print(f"✅ NIfTI files converted back to: {args.output_mat_file}")
         print("✅ Resolution read from NIfTI file spacing")
         print("✅ Data converted back to original format")
-        print("\\nTo verify round-trip conversion, run:")
-        print("python verify_roundtrip_conversion.py")
     else:
         print("\\n❌ Conversion failed. Please check the error messages above.")
+        sys.exit(1)

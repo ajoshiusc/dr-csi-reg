@@ -11,13 +11,13 @@ source .venv/bin/activate
 pip install scipy nibabel nilearn SimpleITK numpy matplotlib opencv-python
 
 # 2. Convert spectral .mat to NIfTI files
-python spectral_mat_to_nifti.py
+python spectral_mat_to_nifti.py input_file.mat output_dir [--res x y z]
 
 # 3. Register all spectral files (auto-selects central template)
 python nifti_registration_pipeline.py input_dir output_dir
 
 # 4. Convert back to .mat (optional verification)
-python spectral_nifti_to_mat.py
+python spectral_nifti_to_mat.py input_dir output_file.mat [original_file.mat]
 ```
 
 ## 📁 Core Scripts
@@ -48,9 +48,12 @@ See [DOCUMENTATION.md](DOCUMENTATION.md) for complete usage guide, API reference
 ## 🏃‍♂️ Example Workflow
 
 ```bash
-# Convert spectral data to individual NIfTI files
-python spectral_mat_to_nifti.py
+# Convert spectral data to individual NIfTI files (required arguments)
+python spectral_mat_to_nifti.py data_wip_patient2.mat patient2_nifti_spectral_output
 # → Creates patient2_nifti_spectral_output/ with 31 files
+
+# With custom resolution override
+python spectral_mat_to_nifti.py data_wip_patient2.mat custom_output/ --res 2.0 2.0 3.0
 
 # Register all files using central file as template
 python nifti_registration_pipeline.py \
@@ -58,6 +61,9 @@ python nifti_registration_pipeline.py \
     patient2_registration_output \
     --processes 4
 # → Creates registered .reg.nii.gz files
+
+# Convert back to .mat format
+python spectral_nifti_to_mat.py patient2_nifti_spectral_output reconstructed.mat data_wip_patient2.mat
 ```
 
 ## 💡 Advanced Usage

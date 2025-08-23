@@ -38,12 +38,12 @@ def convert_spectral_mat_to_nifti(mat_file, output_dir, res=None):
     img_data = mat['data']  # Shape: (31, 104, 52, 12)
     
     # Read resolution from mat file, with fallback to parameter or default
-    if 'Resolution' in mat:
+    if res is not None:
+        resolution = res
+        print(f"Using provided resolution override: {resolution}")
+    elif 'Resolution' in mat:
         resolution = mat['Resolution'][0]
         print(f"Using resolution from mat file: {resolution}")
-    elif res is not None:
-        resolution = res
-        print(f"Using provided resolution: {resolution}")
     else:
         resolution = [1, 1, 1]
         print(f"Using default resolution: {resolution}")
@@ -121,20 +121,58 @@ def convert_spectral_mat_to_nifti(mat_file, output_dir, res=None):
     return num_spectral_points
 
 if __name__ == "__main__":
-    # Configuration
-    mat_file = "/home/ajoshi/Projects/dr-csi-reg/data_wip_patient2.mat"
-    output_dir = "/home/ajoshi/Projects/dr-csi-reg/patient2_nifti_spectral_output"
+    import argparse
     
-    # Resolution will be read from the mat file automatically
-    # You can optionally override it by passing res parameter
+    def show_usage():
+        """Show usage information when script is run without arguments"""
+        print("=== Spectral .mat to NIfTI Conversion ===")
+        print()
+        print("Usage:")
+        print("  python spectral_mat_to_nifti.py <input_mat_file> <output_directory>")
+        print()
+        print("Examples:")
+        print("  python spectral_mat_to_nifti.py data_wip_patient2.mat patient2_nifti_spectral_output")
+        print("  python spectral_mat_to_nifti.py /path/to/spectral_data.mat /path/to/output/")
+        print()
+        print("Arguments:")
+        print("  input_mat_file     Path to input .mat file containing spectral data")
+        print("  output_directory   Directory to save the converted NIfTI files")
+        print()
+        print("The script will:")
+        print("  1. Read spectral data from .mat file")
+        print("  2. Extract resolution from .mat file metadata")
+        print("  3. Create individual NIfTI files for each spectral point")
+        print("  4. Generate PNG visualizations for first 5 spectral points")
+        print("  5. Save processing metadata")
+        print()
+    
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Convert spectral .mat files to individual NIfTI files')
+    parser.add_argument('mat_file', help='Input .mat file containing spectral data')
+    parser.add_argument('output_dir', help='Output directory for NIfTI files')
+    parser.add_argument('--res', nargs=3, type=float, metavar=('X', 'Y', 'Z'),
+                       help='Override resolution [x y z] in mm (default: read from .mat file)')
+    
+    # Check if no arguments provided
+    import sys
+    if len(sys.argv) < 3:
+        show_usage()
+        sys.exit(1)
+    
+    args = parser.parse_args()
     
     print("=== Processing Spectral Data ===")
-    print(f"Input file: {mat_file}")
-    print(f"Output directory: {output_dir}")
-    print("Resolution will be read from mat file")
+    print(f"Input file: {args.mat_file}")
+    print(f"Output directory: {args.output_dir}")
+    if args.res:
+        print(f"Resolution override: {args.res}")
+        res = args.res
+    else:
+        print("Resolution will be read from mat file")
+        res = None
     
-    # Process the data (resolution will be read from mat file)
-    num_spectral = convert_spectral_mat_to_nifti(mat_file, output_dir)
+    # Process the data
+    num_spectral = convert_spectral_mat_to_nifti(args.mat_file, args.output_dir, res)
     
     print("\n=== Processing Complete ===")
     if num_spectral and num_spectral > 0:
@@ -143,6 +181,7 @@ if __name__ == "__main__":
         print("✅ PNG visualizations created for first 5 spectral points")
         print("✅ Metadata saved to spectral_metadata.txt")
         print("\nTo convert back to .mat format, run:")
-        print("python spectral_nifti_to_mat.py")
+        print(f"python spectral_nifti_to_mat.py {args.output_dir} reconstructed.mat {args.mat_file}")
     else:
         print("❌ Processing failed. Check error messages above.")
+        sys.exit(1)

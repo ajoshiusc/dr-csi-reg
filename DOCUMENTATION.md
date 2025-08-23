@@ -27,11 +27,20 @@ Converts spectral .mat files to individual NIfTI files, with each spectral point
 ### Command-Line Usage
 ```bash
 # Basic usage - uses resolution from .mat file
-python spectral_mat_to_nifti.py input_file.mat output_directory
+python spectral_mat_to_nifti.py input_file.mat output_directory [--res x y z]
 
 # Examples
 python spectral_mat_to_nifti.py data_wip_patient2.mat patient2_nifti_spectral_output
+python spectral_mat_to_nifti.py data_wip_patient2.mat custom_output/ --res 2.0 2.0 3.0
+
+# Get help
+python spectral_mat_to_nifti.py -h
 ```
+
+**Arguments:**
+- `input_file.mat` (required): Path to input .mat file containing spectral data
+- `output_directory` (required): Output directory for NIfTI files
+- `--res x y z` (optional): Custom voxel resolution in mm (overrides .mat file values)
 
 ### Function Signature
 ```python
@@ -74,11 +83,21 @@ Converts spectral NIfTI files back to the original .mat format, enabling perfect
 
 ### Command-Line Usage
 ```bash
-# Basic usage (uses hardcoded paths)
-python spectral_nifti_to_mat.py
+# Basic usage - required arguments
+python spectral_nifti_to_mat.py input_directory output_mat_file [original_mat_file]
 
-# Function can be imported and used programmatically
+# Examples
+python spectral_nifti_to_mat.py patient2_nifti_spectral_output reconstructed.mat
+python spectral_nifti_to_mat.py patient2_nifti_spectral_output reconstructed.mat data_wip_patient2.mat
+
+# Get help
+python spectral_nifti_to_mat.py -h
 ```
+
+**Arguments:**
+- `input_directory` (required): Directory containing spectral_point_*.nii.gz files
+- `output_mat_file` (required): Output .mat file path
+- `original_mat_file` (optional): Original .mat file for metadata comparison
 
 ### Function Signature
 ```python
@@ -243,7 +262,7 @@ python nifti_registration_pipeline.py \
 # Output: 31 registered .reg.nii.gz files
 
 # 3. Convert back to .mat format (optional verification)
-python spectral_nifti_to_mat.py
+python spectral_nifti_to_mat.py patient2_nifti_spectral_output reconstructed.mat data_wip_patient2.mat
 # Output: reconstructed .mat file
 ```
 
