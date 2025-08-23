@@ -70,14 +70,14 @@ python nifti_registration_pipeline.py input_dir output_dir \
 
 **Override resolution:**
 ```python
-from main_mat2nifti_spectral import process_spectral_format
-process_spectral_format("data.mat", "output", res=[2.0, 2.0, 3.0])
+from spectral_mat_to_nifti import convert_spectral_mat_to_nifti
+convert_spectral_mat_to_nifti("data.mat", "output", res=[2.0, 2.0, 3.0])
 ```
 
 **Batch processing:**
 ```python
-from main_register2template_enhanced import process_directory_registration
-results = process_directory_registration("input", None, "output", num_processes=12)
+from nifti_registration_pipeline import register_nifti_directory
+results = register_nifti_directory("input", None, "output", num_processes=12)
 ```
 
 ## 🎨 Visualizations
