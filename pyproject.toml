@@ -1,0 +1,35 @@
+[project]
+name = "dr-csi-reg"
+version = "1.0.0"
+description = "Spectral MRI data processing pipeline for .mat to NIfTI conversion and registration"
+authors = ["USC Laboratory"]
+license = "MIT"
+readme = "README.md"
+requires-python = ">=3.11"
+
+dependencies = [
+    "scipy",
+    "nibabel", 
+    "nilearn",
+    "SimpleITK",
+    "numpy",
+    "matplotlib",
+    "opencv-python"
+]
+
+[project.urls]
+repository = "https://github.com/ajoshiusc/dr-csi-reg"
+documentation = "docs/DOCUMENTATION.md"
+
+[project.scripts]
+convert-mat-to-nifti = "convert_mat_to_nifti:main"
+convert-nifti-to-mat = "convert_nifti_to_mat:main" 
+register-nifti = "register_nifti:main"
+
+[tool.pylint]
+max-line-length = 120
+disable = ["C0114", "C0115", "C0116"]  # Missing docstrings for modules, classes, methods
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
