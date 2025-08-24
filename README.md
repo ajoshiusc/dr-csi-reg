@@ -1,6 +1,6 @@
 # DR-CSI Registration Pipeline
 
-A professional spectral MRI data processing pipeline for converting between .mat and NIfTI formats with registration capabilities.
+A spectral MRI data nonlinear registration pipeline.  
 
 ## 📁 Project Structure
 
