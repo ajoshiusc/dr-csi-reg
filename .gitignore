@@ -178,3 +178,4 @@ cython_debug/
 *.mat
 *.tfm
 *spectral_metadata.txt
+workflow_log.txt
