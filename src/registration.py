@@ -66,14 +66,8 @@ def perform_nonlinear_registration(moving, fixed, output, linloss='cc', nonlinlo
 
     fixed_image = sitk.ReadImage(fixed, sitk.sitkFloat32)
     moving_image = sitk.ReadImage(moving, sitk.sitkFloat32)
-    
-    initial_transform = sitk.CenteredTransformInitializer(
-        fixed_image,
-        moving_image,
-        sitk.Euler3DTransform(),
-        sitk.CenteredTransformInitializerFilter.GEOMETRY,
-    )
-
+    # Skipping CenteredTransformInitializer due to reliability issues
+    initial_transform = None
     final_transform, _ = multires_registration(fixed_image, moving_image, initial_transform)
 
     # save the transformation in a file

@@ -1,0 +1,130 @@
+Registration Processing Results
+Input directory: data/workflow_nifti
+Template: data/workflow_nifti/spectral_point_015.nii.gz
+Output directory: data/workflow_registration
+File pattern: *.nii.gz
+Total files processed: 31
+Successful registrations: 14
+Skipped (already existed): 0
+Failed registrations: 17
+Parallel processes used: 2
+
+Errors encountered:
+  - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x13cfe190): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x1d852180): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x1d852180): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x36af5ad0): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x36af5ad0): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x2945e6e0): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x3c4b99c0): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x399eec50): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x1d7ff500): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x293d2800): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x1d851ef0): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x2941cbf0): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x1d850030): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x2945e130): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x439d5010): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x2ccc3980): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x3b8a5ef0): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+
+Detailed Results:
+  spectral_point_019.nii.gz: SUCCESS - Successfully registered: data/workflow_registration/spectral_point_019.reg.nii.gz
+  spectral_point_011.nii.gz: FAILED - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x13cfe190): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  spectral_point_024.nii.gz: SUCCESS - Successfully registered: data/workflow_registration/spectral_point_024.reg.nii.gz
+  spectral_point_030.nii.gz: SUCCESS - Successfully registered: data/workflow_registration/spectral_point_030.reg.nii.gz
+  spectral_point_026.nii.gz: FAILED - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x1d852180): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  spectral_point_013.nii.gz: FAILED - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x1d852180): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  spectral_point_016.nii.gz: SUCCESS - Successfully registered: data/workflow_registration/spectral_point_016.reg.nii.gz
+  spectral_point_003.nii.gz: FAILED - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x36af5ad0): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  spectral_point_002.nii.gz: SUCCESS - Successfully registered: data/workflow_registration/spectral_point_002.reg.nii.gz
+  spectral_point_005.nii.gz: SUCCESS - Successfully registered: data/workflow_registration/spectral_point_005.reg.nii.gz
+  spectral_point_009.nii.gz: FAILED - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x36af5ad0): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  spectral_point_006.nii.gz: SUCCESS - Successfully registered: data/workflow_registration/spectral_point_006.reg.nii.gz
+  spectral_point_015.nii.gz: SUCCESS - Successfully registered: data/workflow_registration/spectral_point_015.reg.nii.gz
+  spectral_point_017.nii.gz: FAILED - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x2945e6e0): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  spectral_point_004.nii.gz: FAILED - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x3c4b99c0): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  spectral_point_022.nii.gz: FAILED - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x399eec50): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  spectral_point_018.nii.gz: FAILED - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x1d7ff500): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  spectral_point_029.nii.gz: FAILED - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x293d2800): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  spectral_point_008.nii.gz: FAILED - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x1d851ef0): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  spectral_point_028.nii.gz: FAILED - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x2941cbf0): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  spectral_point_012.nii.gz: FAILED - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x1d850030): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  spectral_point_014.nii.gz: SUCCESS - Successfully registered: data/workflow_registration/spectral_point_014.reg.nii.gz
+  spectral_point_007.nii.gz: SUCCESS - Successfully registered: data/workflow_registration/spectral_point_007.reg.nii.gz
+  spectral_point_001.nii.gz: SUCCESS - Successfully registered: data/workflow_registration/spectral_point_001.reg.nii.gz
+  spectral_point_020.nii.gz: SUCCESS - Successfully registered: data/workflow_registration/spectral_point_020.reg.nii.gz
+  spectral_point_023.nii.gz: FAILED - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x2945e130): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  spectral_point_025.nii.gz: SUCCESS - Successfully registered: data/workflow_registration/spectral_point_025.reg.nii.gz
+  spectral_point_010.nii.gz: SUCCESS - Successfully registered: data/workflow_registration/spectral_point_010.reg.nii.gz
+  spectral_point_000.nii.gz: FAILED - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x439d5010): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  spectral_point_021.nii.gz: FAILED - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x2ccc3980): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
+  spectral_point_027.nii.gz: FAILED - Registration error: Exception thrown in SimpleITK ImageRegistrationMethod_Execute: /tmp/SimpleITK-build/ITK-prefix/include/ITK-5.4/itkMattesMutualInformationImageToImageMetricv4.hxx:307:
+ITK ERROR: MattesMutualInformationImageToImageMetricv4(0x3b8a5ef0): All samples map outside moving image buffer. The images do not sufficiently overlap. They need to be initialized to have more overlap before this metric will work. For instance, you can align the image centers by translation.
+
