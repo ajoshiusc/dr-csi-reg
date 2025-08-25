@@ -20,7 +20,7 @@ INPUT_MAT="data/data_wip_patient2.mat"
 NIFTI_OUTPUT="data/workflow_nifti"
 REGISTRATION_OUTPUT="data/workflow_registration"
 FINAL_MAT_OUTPUT="data/workflow_final_reconstructed.mat"
-PARALLEL_PROCESSES=1  # Reduced to avoid GPU memory conflicts and race conditions
+PARALLEL_PROCESSES=4  # Optimized for balanced parallel processing
 
 # Clean up any previous runs
 echo "Cleaning up previous workflow outputs..."
