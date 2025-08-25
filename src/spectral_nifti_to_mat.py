@@ -35,15 +35,16 @@ def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=
     
     print(f"Found {len(nifti_files)} spectral NIfTI files")
     
-    # Load original file metadata if provided (for Transform and spatial_dim only)
+    # Load original file metadata if provided - preserve ALL fields except 'data'
     original_metadata = {}
     if original_mat_file and os.path.exists(original_mat_file):
         original_mat = sio.loadmat(original_mat_file)
-        original_metadata = {
-            'Transform': original_mat.get('Transform', np.eye(4, dtype=np.uint8)),
-            'spatial_dim': original_mat.get('spatial_dim', None)
-        }
-        print(f"Using Transform and spatial_dim from original file: {original_mat_file}")
+        # Preserve all fields from original except private MATLAB fields and 'data'
+        for key, value in original_mat.items():
+            if not key.startswith('__') and key != 'data':
+                original_metadata[key] = value
+        print(f"Preserving metadata from original file: {original_mat_file}")
+        print(f"  Preserved fields: {list(original_metadata.keys())}")
     
     # Read all spectral volumes and reconstruct the 4D array
     spectral_volumes = []
@@ -81,21 +82,37 @@ def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=
         resolution_array = np.array([[1, 1, 1]], dtype=np.uint8)
         print("Using default resolution: [[1, 1, 1]]")
     
-    # Create the output dictionary with the same structure as original
+    # Create the output dictionary starting with the reconstructed data
     output_dict = {
-        'data': reconstructed_data.astype(np.uint16),  # Match original dtype
-        'Resolution': resolution_array  # Use resolution from NIfTI files
+        'data': reconstructed_data.astype(np.uint16),  # Main spectral data
     }
     
-    # Add other metadata if available
+    # Add resolution - prefer from NIfTI spacing, fallback to original
+    output_dict['Resolution'] = resolution_array
+    
+    # Add all other metadata from original file if available
     if original_metadata:
-        output_dict.update(original_metadata)
+        # Add all preserved fields from original file
+        for key, value in original_metadata.items():
+            if key != 'Resolution':  # Don't overwrite Resolution derived from NIfTI
+                output_dict[key] = value
+        print(f"Added {len(original_metadata)} metadata fields from original file")
     else:
         # Use default metadata if original not available
         output_dict.update({
             'Transform': np.eye(4, dtype=np.uint8),
             'spatial_dim': np.array([[reconstructed_data.shape[1], reconstructed_data.shape[2], reconstructed_data.shape[3]]], dtype=np.uint8)
         })
+        print("Using default metadata (no original file provided)")
+    
+    # Ensure critical fields are present with reasonable defaults
+    if 'Transform' not in output_dict:
+        output_dict['Transform'] = np.eye(4, dtype=np.uint8)
+        print("Added default Transform matrix")
+    
+    if 'spatial_dim' not in output_dict:
+        output_dict['spatial_dim'] = np.array([[reconstructed_data.shape[1], reconstructed_data.shape[2], reconstructed_data.shape[3]]], dtype=np.uint8)
+        print("Added default spatial_dim based on data shape")
     
     # Save to .mat file
     try:
@@ -103,6 +120,7 @@ def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=
         print(f"Successfully saved reconstructed data to: {output_mat_file}")
         print(f"Final data shape: {reconstructed_data.shape}")
         print(f"Data type: {reconstructed_data.dtype}")
+        print(f"Saved fields: {list(output_dict.keys())}")
         
         # Calculate file size
         file_size_mb = os.path.getsize(output_mat_file) / (1024 * 1024)
