@@ -105,7 +105,7 @@ def register_single_nifti_file(args):
     return result
 
 def register_nifti_directory(input_dir, template, output_dir, 
-                                 file_pattern="*.nii.gz", num_processes=1):
+                                 file_pattern="*.nii.gz", num_processes=4):
     """
     Process registration for all NIfTI files in a directory
     
@@ -240,8 +240,8 @@ def main():
                        help='Template NIfTI file for registration (if not specified, uses central file from input directory)')
     parser.add_argument('--pattern', default='*.nii.gz', 
                        help='File pattern to match (default: *.nii.gz)')
-    parser.add_argument('--processes', type=int, default=1,
-                       help='Number of parallel processes (default: 1, reduced to avoid GPU conflicts)')
+    parser.add_argument('--processes', type=int, default=4,
+                       help='Number of parallel processes (default: 4)')
     
     args = parser.parse_args()
     
@@ -318,7 +318,7 @@ def example_usage():
     print("\nOptional arguments:")
     print("  --template FILE      Template NIfTI file (default: auto-select central file)")
     print("  --pattern PATTERN    File pattern to match (default: *.nii.gz)")
-    print("  --processes NUM      Number of parallel processes (default: 12)")
+    print("  --processes NUM      Number of parallel processes (default: 4)")
     print("\nThe script will:")
     print("  1. Find all NIfTI files matching the pattern")
     print("  2. Auto-select template (central file) if not specified")

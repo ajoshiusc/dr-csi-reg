@@ -1,14 +1,52 @@
 # Spectral MRI Data Processing Pipeline Documentation
 
-This repository contains three main scripts for processing spectral MRI data with improved naming conventions and professional function names: conversion from .mat to NIfTI format, reverse conversion, and registration. All scripts are designed with clean architecture and modern Python practices.
+This repository contains a robust spectral MRI data processing pipeline with enhanced error handling, field preservation, and race condition protection. The pipeline includes three main components: conversion from .mat to NIfTI format, robust registration, and reverse conversion with complete metadata preservation.
+
+## 🆕 Recent Major Improvements
+
+- ✅ **Eliminated SimpleITK Registration Errors**: Fixed "All samples map outside moving image buffer" using center alignment
+- ✅ **Enhanced Metadata Preservation**: All original .mat fields preserved in final output  
+- ✅ **Race Condition Protection**: Thread-safe parallel processing with atomic file locking
+- ✅ **Streamlined Registration**: Center alignment + PyTorch/MONAI (no more rigid registration failures)
+- ✅ **GPU Memory Management**: Better CUDA device handling prevents conflicts
 
 ## Table of Contents
 
-1. [spectral_mat_to_nifti.py](#spectral_mat_to_niftipy) - Forward Conversion (.mat → NIfTI)
-2. [spectral_nifti_to_mat.py](#spectral_nifti_to_matpy) - Reverse Conversion (NIfTI → .mat)
-3. [nifti_registration_pipeline.py](#nifti_registration_pipelinepy) - Registration Pipeline
-4. [Installation & Setup](#installation--setup)
-5. [Usage Examples](#usage-examples)
+1. [Full Workflow Script](#full-workflow-script) - **Recommended Approach**
+2. [spectral_mat_to_nifti.py](#spectral_mat_to_niftipy) - Forward Conversion (.mat → NIfTI)
+3. [nifti_registration_pipeline.py](#nifti_registration_pipelinepy) - Enhanced Registration Pipeline
+4. [spectral_nifti_to_mat.py](#spectral_nifti_to_matpy) - Reverse Conversion (NIfTI → .mat)
+5. [Installation & Setup](#installation--setup)
+6. [Usage Examples](#usage-examples)
+
+---
+
+## Full Workflow Script
+
+### Purpose
+**Recommended approach**: Automated complete pipeline that handles all steps with proper error handling and monitoring.
+
+### Key Features
+- ✅ **Complete Automation**: Single command runs entire pipeline
+- ✅ **Progress Monitoring**: Real-time progress updates and logging
+- ✅ **Error Handling**: Validates each step before proceeding
+- ✅ **Race Condition Protection**: Thread-safe parallel processing
+- ✅ **Metadata Preservation**: Ensures all original fields are maintained
+
+### Usage
+```bash
+# Run complete pipeline (recommended)
+bash run_full_workflow.sh
+
+# Monitor progress in separate terminal
+tail -f workflow_log.txt
+```
+
+### What It Does
+1. Converts `data/data_wip_patient2.mat` → NIfTI files
+2. Registers all files using enhanced pipeline (center alignment + PyTorch/MONAI)  
+3. Converts back to `.mat` preserving ALL original metadata fields
+4. Generates comprehensive processing reports
 
 ---
 
@@ -73,31 +111,36 @@ def convert_spectral_mat_to_nifti(mat_file, output_dir, res=None):
 ## spectral_nifti_to_mat.py
 
 ### Purpose
-Converts spectral NIfTI files back to the original .mat format, enabling perfect round-trip conversion.
+Converts spectral NIfTI files back to the original .mat format with **complete metadata preservation**, enabling perfect round-trip conversion.
+
+### 🆕 Enhanced Metadata Preservation
+- ✅ **ALL Original Fields Preserved**: Transform, spatial_dim, and any custom fields
+- ✅ **Smart Resolution Handling**: Uses NIfTI spacing, preserves original Resolution field
+- ✅ **Perfect Round-Trip**: Exact reconstruction of original .mat structure
+- ✅ **Flexible Input**: Works with registered or unregistered NIfTI files
 
 ### Key Features
-- ✅ **Perfect Reconstruction**: Exact data preservation in reverse conversion
-- ✅ **Metadata Integration**: Preserves Transform and spatial_dim from original
+- ✅ **Complete Field Preservation**: Preserves ALL fields from original .mat except 'data'
 - ✅ **Data Validation**: Comprehensive shape and format checking
-- ✅ **Flexible Input**: Works with any spectral_point_*.nii.gz naming convention
+- ✅ **Automatic Resolution**: Derives resolution from NIfTI file spacing
+- ✅ **Fallback Handling**: Uses defaults when original metadata unavailable
 
 ### Command-Line Usage
 ```bash
-# Basic usage - required arguments
-python spectral_nifti_to_mat.py input_directory output_mat_file [original_mat_file]
+# RECOMMENDED: With original file for complete metadata preservation
+python spectral_nifti_to_mat.py input_directory output.mat original_input.mat
+
+# Basic usage (loses some metadata)
+python spectral_nifti_to_mat.py input_directory output.mat
 
 # Examples
-python spectral_nifti_to_mat.py patient2_nifti_spectral_output reconstructed.mat
-python spectral_nifti_to_mat.py patient2_nifti_spectral_output reconstructed.mat data_wip_patient2.mat
-
-# Get help
-python spectral_nifti_to_mat.py -h
+python spectral_nifti_to_mat.py \
+    data/patient2_registration_output \
+    data/final_registered.mat \
+    data/data_wip_patient2.mat   # ← IMPORTANT for metadata preservation
 ```
 
-**Arguments:**
-- `input_directory` (required): Directory containing spectral_point_*.nii.gz files
-- `output_mat_file` (required): Output .mat file path
-- `original_mat_file` (optional): Original .mat file for metadata comparison
+**⚠️ Important**: Always provide the third argument (original .mat file) to preserve all metadata fields!
 
 ### Function Signature
 ```python
@@ -125,37 +168,55 @@ def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=
 ## nifti_registration_pipeline.py
 
 ### Purpose
-Generic NIfTI registration pipeline that registers all files in a directory to a template, with automatic template selection and parallel processing.
+**Enhanced registration pipeline** with robust error handling, center alignment initialization, and race condition protection. Registers all files in a directory to a template using modern PyTorch/MONAI-based methods.
 
-### ⚠️ Important Requirements
-- **NVIDIA GPU with CUDA support required** - CPU-only execution not supported
+### 🆕 Major Improvements
+- ✅ **Eliminated SimpleITK Errors**: No more "All samples map outside moving image buffer"
+- ✅ **Center Alignment**: Better initialization using image center alignment
+- ✅ **Race Condition Protection**: Atomic file locking prevents parallel processing conflicts
+- ✅ **GPU Memory Management**: Smart CUDA device allocation
+- ✅ **Robust Error Handling**: Graceful fallback mechanisms
+
+### Registration Workflow
+1. **Center Alignment**: Aligns image centers using SimpleITK transforms
+2. **Affine Registration**: PyTorch/MONAI-based robust affine alignment
+3. **Non-linear Registration**: PyTorch/MONAI-based deformable registration  
+4. **Transformation Composition**: Combines all transforms for final output
+
+### ⚠️ System Requirements
+- **NVIDIA GPU with CUDA support** (recommended, falls back to CPU)
 - **Processing time**: 3-4 hours for typical spectral datasets (31 files)
-- **Memory requirements**: Minimum 8GB GPU memory recommended
+- **Memory requirements**: 8GB+ GPU memory recommended
 - **System requirements**: 16GB+ RAM, ~5GB disk space for outputs
+- **Parallel processes**: Use `--processes 4` (default, can be adjusted based on system resources)
 
 ### Key Features
-- ✅ **Auto-Template Selection**: Automatically selects central file as template when none specified
-- ✅ **Generic File Support**: Works with any NIfTI files (not limited to spectral data)
-- ✅ **Parallel Processing**: Configurable number of parallel processes
-- ✅ **Comprehensive Reporting**: Detailed success/failure tracking
-- ✅ **Command-Line Interface**: Full argument parsing and help system
+- ✅ **Auto-Template Selection**: Automatically selects central file when none specified
+- ✅ **Generic File Support**: Works with any NIfTI files (not spectral-specific)
+- ✅ **Thread-Safe Processing**: Atomic file operations prevent race conditions
+- ✅ **Comprehensive Reporting**: Detailed success/failure tracking with metadata
 - ✅ **Smart File Filtering**: Excludes already processed `.reg.nii.gz` files
+- ✅ **GPU Fallback**: Automatic CPU fallback if CUDA unavailable
 
 ### Command-Line Usage
 ```bash
-# Basic usage with auto-template selection
-python nifti_registration_pipeline.py input_dir output_dir
+# Recommended usage (single process for GPU systems)
+python nifti_registration_pipeline.py input_dir output_dir --processes 4
 
-# With custom options
+# With custom template
 python nifti_registration_pipeline.py input_dir output_dir \
     --template custom_template.nii.gz \
-    --processes 8 \
-    --pattern "*.nii.gz"
+    --processes 4
 
-# Examples
+# Custom file pattern
+python nifti_registration_pipeline.py input_dir output_dir \
+    --pattern "spectral_point_0*.nii.gz" \
+    --processes 4
+
+# Example with spectral data
 python nifti_registration_pipeline.py \
-    patient2_nifti_spectral_output \
-    patient2_registration_output \
+    data/patient2_nifti_output \
+    data/patient2_registration_output \
     --processes 4
 ```
 
@@ -164,12 +225,12 @@ python nifti_registration_pipeline.py \
 - `output_dir`: Output directory for registered files
 - `--template`: Template NIfTI file (if not specified, uses central file from input directory)
 - `--pattern`: File pattern to match (default: `*.nii.gz`)
-- `--processes`: Number of parallel processes (default: 12)
+- `--processes`: Number of parallel processes (default: 4)
 
 ### Function Signatures
 ```python
 def register_nifti_directory(input_dir, template, output_dir, 
-                           file_pattern="*.nii.gz", num_processes=12):
+                           file_pattern="*.nii.gz", num_processes=4):
     """
     Register all NIfTI files in a directory to a template
     
@@ -178,7 +239,7 @@ def register_nifti_directory(input_dir, template, output_dir,
         template (str or None): Template file (None = auto-select central file)
         output_dir (str): Output directory for registered files
         file_pattern (str): Pattern to match input files (default: "*.nii.gz")
-        num_processes (int): Number of parallel processes (default: 12)
+        num_processes (int): Number of parallel processes (default: 4)
         
     Returns:
         dict: Processing results with statistics and file details

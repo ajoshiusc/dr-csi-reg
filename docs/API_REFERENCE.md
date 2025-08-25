@@ -67,7 +67,7 @@ print(f"Conversion {'succeeded' if success else 'failed'}")
 
 ### nifti_registration_pipeline.py
 
-#### `register_nifti_directory(input_dir, template, output_dir, file_pattern="*.nii.gz", num_processes=12)`
+#### `register_nifti_directory(input_dir, template, output_dir, file_pattern="*.nii.gz", num_processes=4)`
 Register all NIfTI files in a directory to a template.
 
 **Parameters:**
@@ -75,7 +75,7 @@ Register all NIfTI files in a directory to a template.
 - `template` (str or None): Template file (None = auto-select central file)
 - `output_dir` (str): Output directory for registered files
 - `file_pattern` (str): Pattern to match input files (default: "*.nii.gz")
-- `num_processes` (int): Number of parallel processes (default: 12)
+- `num_processes` (int): Number of parallel processes (default: 4)
 
 **Returns:**
 - `dict`: Processing results with statistics and file details

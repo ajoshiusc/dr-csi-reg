@@ -1,50 +1,62 @@
 # DR-CSI Registration Pipeline
 
-A spectral MRI data nonlinear registration pipeline.  
+A robust spectral MRI data nonlinear registration pipeline with enhanced error handling and field preservation.
+
+## 🆕 Recent Improvements
+
+- ✅ **Eliminated Registration Failures**: Fixed SimpleITK mutual information errors using center alignment
+- ✅ **Enhanced Field Preservation**: Preserves all original .mat file metadata fields
+- ✅ **Race Condition Protection**: Thread-safe parallel processing with file locking
+- ✅ **Streamlined Pipeline**: Optimized registration workflow (center alignment + PyTorch/MONAI)
+- ✅ **GPU Memory Management**: Better CUDA device handling for parallel operations
+
+## 🚀 Quick Start - Full Workflow
+
+```bash
+# 1. Setup environment
+python -m venv .venv
+source .venv/bin/activate  # Linux/Mac
+# .venv\Scripts\activate   # Windows
+pip install -r requirements.txt
+
+# 2. Run complete workflow (recommended)
+bash run_full_workflow.sh
+
+# OR run individual steps:
+
+# 2a. Convert spectral .mat to NIfTI files
+python convert_mat_to_nifti.py data/data_wip_patient2.mat data/output_nifti
+
+# 2b. Register all spectral files (auto-selects central template)
+   # With custom template and parallel processing
+   python register_nifti.py data/workflow_nifti data/registered_nifti --template data/workflow_nifti/spectral_point_000.nii.gz --processes 4
+
+# 2c. Convert back to .mat with preserved metadata
+python convert_nifti_to_mat.py data/registered_output data/final.mat data/data_wip_patient2.mat
+```
 
 ## 📁 Project Structure
 
 ```
 dr-csi-reg/
-├── 📄 README.md                    # Project overview and quick start
-├── 📄 requirements.txt             # Python dependencies
-├── 📄 convert_mat_to_nifti.py     # Wrapper: .mat → NIfTI conversion
-├── 📄 convert_nifti_to_mat.py     # Wrapper: NIfTI → .mat conversion  
-├── 📄 register_nifti.py           # Wrapper: NIfTI registration
-├── 🗂️ src/                        # Core source code
-│   ├── 📄 spectral_mat_to_nifti.py      # .mat to NIfTI converter
-│   ├── 📄 spectral_nifti_to_mat.py      # NIfTI to .mat converter
-│   ├── 📄 nifti_registration_pipeline.py # Registration pipeline
-│   └── 📄 utils.py, registration.py...   # Supporting modules
-├── 🗂️ docs/                       # Documentation  
-│   ├── 📄 DOCUMENTATION.md              # Detailed usage guide
-│   ├── 📄 API_REFERENCE.md              # Function references
-│   └── 📄 *.md                          # Project history docs
-├── 🗂️ data/                       # Data files and outputs
-├── 🗂️ scripts/                    # Utility scripts and job files
-└── 🗂️ examples/                   # Example workflows
-    └── 📄 run_complete_pipeline.py      # Complete pipeline example
-```
-
-## 🚀 Quick Start
-
-```bash
-# 1. Setup environment
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
-# 2. Convert spectral .mat to NIfTI files
-python convert_mat_to_nifti.py data/data_wip_patient2.mat data/output_nifti [--res x y z]
-
-# 3. Register all spectral files (auto-selects central template)
-python register_nifti.py data/output_nifti data/registered_output
-
-# 4. Convert back to .mat (optional verification)
-python convert_nifti_to_mat.py data/registered_output data/final.mat data/data_wip_patient2.mat
-
-# 5.[Optional] Run complete pipeline example
-python examples/run_complete_pipeline.py
+├── 📄 run_full_workflow.sh            # Complete automated pipeline (recommended)
+├── 📄 convert_mat_to_nifti.py        # Wrapper: .mat → NIfTI conversion
+├── 📄 convert_nifti_to_mat.py        # Wrapper: NIfTI → .mat conversion
+├── 📄 register_nifti.py              # Wrapper: Enhanced registration pipeline  
+├── 🗂️ src/                           # Core source code
+│   ├── 📄 spectral_mat_to_nifti.py       # .mat to NIfTI converter
+│   ├── 📄 spectral_nifti_to_mat.py       # NIfTI to .mat converter (metadata preservation)
+│   ├── 📄 nifti_registration_pipeline.py # Registration with race condition protection
+│   ├── 📄 registration.py                # Center alignment + PyTorch/MONAI registration
+│   ├── 📄 aligner.py, warper.py          # GPU-managed registration components
+│   └── 📄 utils.py, *.py                 # Supporting utilities
+├── 🗂️ docs/                          # Comprehensive documentation
+│   ├── 📄 DOCUMENTATION.md               # Complete usage guide
+│   ├── 📄 IMPROVEMENTS_SUMMARY.md        # Recent enhancements summary
+│   └── 📄 API_REFERENCE.md, *.md         # Technical references
+├── 🗂️ data/                          # Input data and outputs
+├── 🗂️ examples/                      # Example workflows and scripts
+└── 🗂️ tests/                         # Test suite (some tests need updates)
 ```
 
 ## ⚠️ Important Requirements & Timing
@@ -52,19 +64,26 @@ python examples/run_complete_pipeline.py
 ### **GPU Requirement for Registration**
 - **Registration step requires NVIDIA GPU** with CUDA support
 - Minimum 8GB GPU memory recommended for typical spectral datasets
-- CPU-only registration is not currently supported
+- Automatic fallback to CPU if CUDA not available (slower)
 
 ### **Processing Time Estimates**
 - **Conversion (.mat ↔ NIfTI)**: ~30 seconds - 2 minutes
 - **Registration**: **3-4 hours** for 31 spectral files (GPU-accelerated)
+- **Full Workflow**: Use `bash run_full_workflow.sh` for complete automation
 - Complete pipeline: Allow 4-5 hours total processing time
 
 ### **System Requirements**
 - Python 3.11+
-- NVIDIA GPU with CUDA support
+- NVIDIA GPU with CUDA support (recommended)
 - 8GB+ GPU memory (recommended)
 - 16GB+ system RAM
 - ~5GB free disk space for outputs
+
+### **Key Improvements**
+- 🔧 **No more SimpleITK errors**: Eliminated "All samples map outside moving image buffer"
+- 🔧 **Better initialization**: Center-to-center alignment before registration
+- 🔧 **Thread-safe**: File locking prevents race conditions in parallel processing
+- 🔧 **Field preservation**: All original .mat metadata preserved in final output
 
 ## 📁 Core Scripts
 
@@ -78,6 +97,26 @@ python examples/run_complete_pipeline.py
 
 See [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) for complete usage guide and [docs/API_REFERENCE.md](docs/API_REFERENCE.md) for function references.
 
+## 🔧 Registration Pipeline Details
+
+### **Enhanced Registration Workflow**
+1. **Center Alignment**: Aligns image centers using SimpleITK transforms
+2. **Affine Registration**: PyTorch/MONAI-based robust affine alignment  
+3. **Non-linear Registration**: PyTorch/MONAI-based deformable registration
+4. **Composition**: Combines transformations for final output
+
+### **Key Improvements Over Previous Versions**
+- ✅ **Eliminated SimpleITK Errors**: No more "All samples map outside moving image buffer"
+- ✅ **Robust Initialization**: Center-to-center alignment provides better starting point
+- ✅ **GPU Memory Management**: Smart CUDA device allocation prevents conflicts
+- ✅ **Thread Safety**: File locking prevents race conditions in parallel processing
+- ✅ **Error Handling**: Graceful fallback mechanisms for registration failures
+
+### **Parallel Processing Notes**
+- Default: `--processes 4` (can be adjusted based on system resources)
+- Race condition protection: Atomic file locking prevents collisions
+- Thread-safe temporary files: Process-specific naming prevents overwrites
+
 ## 🔧 Data Format
 
 **Input .mat structure:**
@@ -85,56 +124,105 @@ See [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) for complete usage guide and 
 {
     'data': (31, 104, 52, 12),        # (spectral_points, x, y, z)
     'Resolution': [[1, 1, 1]],        # [x_res, y_res, z_res] in mm
-    'spatial_dim': [[104, 52, 12]]    # Spatial dimensions
+    'spatial_dim': [[104, 52, 12]],   # Spatial dimensions
+    'Transform': np.eye(4),           # Transform matrix (preserved)
+    # ... all other fields preserved in output
 }
 ```
 
-**Output:** 31 individual NIfTI files (`spectral_point_000.nii.gz` ... `spectral_point_030.nii.gz`)
+**Processing Flow:**
+- **Step 1**: `.mat` → 31 individual NIfTI files (`spectral_point_000.nii.gz` ... `spectral_point_030.nii.gz`)
+- **Step 2**: Registration → 31 registered files (`spectral_point_000.reg.nii.gz` ... `spectral_point_030.reg.nii.gz`) 
+- **Step 3**: NIfTI → `.mat` with **ALL original fields preserved** except updated `data`
 
-## 🏃‍♂️ Example Workflow
+## 🏃‍♂️ Example Workflows
 
+### **Recommended: Full Automated Workflow**
 ```bash
-# Convert spectral data to individual NIfTI files (required arguments)
-python convert_mat_to_nifti.py data/data_wip_patient2.mat data/patient2_nifti_spectral_output
-# → Creates data/patient2_nifti_spectral_output/ with 31 files
+# Single command to run complete pipeline
+bash run_full_workflow.sh
+# → Converts .mat → NIfTI → Register → Final .mat
+# → Uses parallel processing with race condition protection
+# → Preserves all original metadata fields
+```
 
-# With custom resolution override
-python convert_mat_to_nifti.py data/data_wip_patient2.mat data/custom_output/ --res 2.0 2.0 3.0
+### **Manual Step-by-Step Workflow**
+```bash
+# Convert spectral data to individual NIfTI files
+python convert_mat_to_nifti.py data/data_wip_patient2.mat data/patient2_nifti_output
+# → Creates data/patient2_nifti_output/ with 31 files
 
-# Register all files using central file as template
+# Register all files using center alignment + PyTorch/MONAI
 python register_nifti.py \
-    data/patient2_nifti_spectral_output \
+    data/patient2_nifti_output \
     data/patient2_registration_output \
     --processes 4
 # → Creates registered .reg.nii.gz files
-# ⚠️ WARNING: Requires NVIDIA GPU, takes 3-4 hours for 31 files
+# → Uses center alignment (no SimpleITK errors)
+# → Takes 3-4 hours for 31 files
 
-# Convert back to .mat format
-python convert_nifti_to_mat.py data/patient2_nifti_spectral_output data/reconstructed.mat data/data_wip_patient2.mat
+# Convert back to .mat format with metadata preservation
+python convert_nifti_to_mat.py \
+    data/patient2_registration_output \
+    data/reconstructed.mat \
+    data/data_wip_patient2.mat
+# → Preserves ALL original .mat fields except 'data'
+```
+
+### **Custom Resolution Override**
+```bash
+# Convert with custom voxel spacing
+python convert_mat_to_nifti.py data/data_wip_patient2.mat data/custom_output/ --res 2.0 2.0 3.0
+```
+
+### **Custom Template Registration**
+```bash
+# Use specific template file instead of auto-selected central file
+python register_nifti.py data/input_dir data/output_dir \
+    --template data/custom_template.nii.gz --processes 4
 ```
 
 ## 💡 Advanced Usage
 
-**Custom template:**
+### **Full Workflow Script (Recommended)**
 ```bash
-python register_nifti.py data/input_dir data/output_dir \
-    --template data/custom_template.nii.gz --processes 8
+# Automated complete pipeline with monitoring
+bash run_full_workflow.sh
+
+# Monitor progress in another terminal
+tail -f workflow_log.txt
 ```
 
-**Override resolution:**
+### **Custom Parameters**
+```bash
+# Custom parallel processes (adjust based on system resources)
+python register_nifti.py data/input data/output --processes 4
+
+# Custom template file
+python register_nifti.py data/input data/output --template data/my_template.nii.gz
+
+# Custom file pattern
+python register_nifti.py data/input data/output --pattern "spectral_point_0[0-9].nii.gz"
+```
+
+### **Programmatic Usage**
 ```python
-# Use wrapper scripts or import directly from src/
-import sys; sys.path.append('src')
+# Direct function calls (run from src/ directory)
+import os
+os.chdir('src')
+
 from spectral_mat_to_nifti import convert_spectral_mat_to_nifti
-convert_spectral_mat_to_nifti("data/data.mat", "data/output", res=[2.0, 2.0, 3.0])
-```
+from nifti_registration_pipeline import register_nifti_directory  
+from spectral_nifti_to_mat import convert_spectral_nifti_to_mat
 
-**Batch processing:**
-```python
-# Use wrapper scripts or import directly from src/
-import sys; sys.path.append('src')  
-from nifti_registration_pipeline import register_nifti_directory
-results = register_nifti_directory("data/input", None, "data/output", num_processes=12)
+# Step 1: Convert to NIfTI
+convert_spectral_mat_to_nifti("../data/input.mat", "../data/nifti", res=[2.0, 2.0, 3.0])
+
+# Step 2: Register files
+register_nifti_directory("../data/nifti", None, "../data/registered", num_processes=4)
+
+# Step 3: Convert back with metadata preservation  
+convert_spectral_nifti_to_mat("../data/registered", "../data/output.mat", "../data/input.mat")
 ```
 
 ## 🎨 Visualizations
