@@ -118,6 +118,17 @@ class Aligner:
         ).cpu().numpy(), self.target.affine), output_file)
 
     def affine_reg(self, fixed_file, moving_file, output_file, ddf_file, loss='mse', nn_input_size=64, lr=1e-6, max_epochs=5000, device='cuda'):
+        # Check GPU availability and handle device assignment to avoid race conditions
+        import torch
+        if device == "cuda" and not torch.cuda.is_available():
+            print("⚠️  CUDA not available, falling back to CPU")
+            device = "cpu"
+        elif device == "cuda":
+            # Use current GPU context to avoid conflicts in parallel processing
+            gpu_id = torch.cuda.current_device() if torch.cuda.device_count() > 0 else 0
+            print(f"🔧 Using GPU {gpu_id} for affine registration")
+            torch.cuda.set_device(gpu_id)
+            
         self.setLoss(loss)
         self.nn_input_size = nn_input_size
         self.lr = lr,

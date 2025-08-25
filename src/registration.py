@@ -1,24 +1,53 @@
 #!/home/ajoshi/anaconda3/bin/python
 # -*- coding: utf-8 -*-
 
-import nibabel as nib
-import numpy as np
 import argparse
-import sys
 import os
 from os.path import join
-import nilearn.image as ni
-import nibabel as nb
 import SimpleITK as sitk
-from pathlib import Path
-from utils import pad_nifti_image, multires_registration, interpolate_zeros
 from aligner import Aligner
-from warp_utils import apply_warp
 from monai.transforms import LoadImage, EnsureChannelFirst
 from warper import Warper
 from composedeformations import composedeformation
 from applydeformation import applydeformation
 from invertdeformationfield import invertdeformationfield
+
+
+def create_center_aligned_transform(fixed_image, moving_image):
+    """
+    Create a transform that aligns the centers of two images.
+    This provides better initialization for registration.
+    
+    Args:
+        fixed_image: SimpleITK image (template)
+        moving_image: SimpleITK image (to be aligned)
+    
+    Returns:
+        SimpleITK Euler3DTransform with center-to-center translation
+    """
+    # Get physical centers of both images
+    fixed_center = [
+        fixed_image.GetOrigin()[i] + fixed_image.GetSpacing()[i] * fixed_image.GetSize()[i] / 2.0
+        for i in range(3)
+    ]
+    
+    moving_center = [
+        moving_image.GetOrigin()[i] + moving_image.GetSpacing()[i] * moving_image.GetSize()[i] / 2.0
+        for i in range(3)
+    ]
+    
+    # Calculate translation needed to align centers
+    translation = [fixed_center[i] - moving_center[i] for i in range(3)]
+    
+    # Create Euler3D transform with center alignment
+    transform = sitk.Euler3DTransform()
+    transform.SetTranslation(translation)
+    
+    print(f"Fixed image center: {fixed_center}")
+    print(f"Moving image center: {moving_center}")
+    print(f"Center alignment translation: {translation}")
+    
+    return transform
 
 
 def perform_nonlinear_registration(moving, fixed, output, linloss='cc', nonlinloss='cc', le=1500, ne=5000, device='cuda'):
@@ -34,92 +63,100 @@ def perform_nonlinear_registration(moving, fixed, output, linloss='cc', nonlinlo
         le (int): Linear epochs (default: 1500)
         ne (int): Nonlinear epochs (default: 5000)
         device (str): Computing device (default: 'cuda')
-    """
-    if not os.path.exists(fixed):
-        print('ERROR: file', fixed, 'does not exist.')
-        sys.exit(2)
-
-    if not os.path.exists(moving):
-        print('ERROR: file', moving, 'does not exist.')
-        sys.exit(2)
-
-
-    subID = moving.split('.')[0]
-    subbase = subID + '.rodreg'
-
-    subbase_dir = subbase + "_dir"
-    os.makedirs(subbase_dir, exist_ok=True)
-
-    centered_moving = join(subbase_dir, "moving.cent.nii.gz")
-    cent_transform_file = join(subbase_dir, "cent.reg.tfm")
-    inv_cent_transform_file = join(subbase_dir, "cent.reg.inv.tfm")
-
-    centered_moving_linreg = join(subbase_dir, "moving.lin.nii.gz")
-    lin_reg_map_file = join(subbase_dir, "lin_ddf.map.nii.gz")
-
-    centered_moving_nonlinreg = join(subbase_dir, "moving.nonlin.nii.gz")
-    nonlin_reg_map_file = join(subbase_dir, "nonlin_ddf.map.nii.gz")
-    inv_nonlin_reg_map_file = join(subbase_dir, "inv.nonlin_ddf.map.nii.gz")
-
-    composed_ddf_file = join(subbase_dir, "composed_ddf.map.nii.gz")
-    inv_composed_ddf_file = join(subbase_dir, "inv.composed_ddf.map.nii.gz")
-
-    fixed_image = sitk.ReadImage(fixed, sitk.sitkFloat32)
-    moving_image = sitk.ReadImage(moving, sitk.sitkFloat32)
-    # Use identity Euler3DTransform as initial transform for reliability
-    initial_transform = sitk.Euler3DTransform()
-    final_transform, _ = multires_registration(fixed_image, moving_image, initial_transform)
-
-    # save the transformation in a file
-    sitk.WriteTransform(final_transform, cent_transform_file)
-
-    # invert the transform and also save to a file
-    inv_transform = final_transform.GetInverse()
-    sitk.WriteTransform(inv_transform, inv_cent_transform_file)
-
-    moved_image = sitk.Resample(moving_image, fixed_image, initial_transform, sitk.sitkLinear, 0.0, moving_image.GetPixelID())
-
-    sitk.WriteImage(moved_image, centered_moving)
-
-    aligner = Aligner()
-    aligner.affine_reg(
-        fixed_file=fixed,
-        moving_file=centered_moving,
-        output_file=centered_moving_linreg,
-        ddf_file=lin_reg_map_file,
-        loss=linloss,
-        device=device,
-        max_epochs=le
-    )
-
-    disp_field, meta = LoadImage(image_only=False)(lin_reg_map_file)
-    disp_field = EnsureChannelFirst()(disp_field)
-
-    nonlin_reg = Warper()
-    nonlin_reg.nonlinear_reg(
-        target_file=fixed,
-        moving_file=centered_moving_linreg,
-        output_file=centered_moving_nonlinreg,
-        ddf_file=nonlin_reg_map_file,
-        inv_ddf_file=inv_nonlin_reg_map_file,
-        reg_penalty=1,
-        nn_input_size=64,
-        lr=1e-4,
-        max_epochs=ne,
-        loss=nonlinloss,
-        device=device,
-    )
-
     
-    composedeformation(nonlin_reg_map_file, lin_reg_map_file, composed_ddf_file)
+    Returns:
+        bool: True if registration successful, False otherwise
+    """
+    try:
+        if not os.path.exists(fixed):
+            print('ERROR: file', fixed, 'does not exist.')
+            return False
 
-    # Apply the composed deformation field to the moving image
-    applydeformation(centered_moving, composed_ddf_file, output)
+        if not os.path.exists(moving):
+            print('ERROR: file', moving, 'does not exist.')
+            return False
 
+        subID = moving.split('.')[0]
+        # Add process ID to avoid race conditions in parallel processing
+        import threading
+        thread_id = threading.get_ident()
+        subbase = f"{subID}.rodreg.{thread_id}"
 
+        subbase_dir = subbase + "_dir"
+        os.makedirs(subbase_dir, exist_ok=True)
 
-    # Invert the composed deformation field this takes about 5-7 min
-    invertdeformationfield(composed_ddf_file, inv_composed_ddf_file)
+        centered_moving = join(subbase_dir, "moving.cent.nii.gz")
+        centered_moving_linreg = join(subbase_dir, "moving.lin.nii.gz")
+        lin_reg_map_file = join(subbase_dir, "lin_ddf.map.nii.gz")
+
+        # Temporary file for nonlinear output (not used in final result)
+        centered_moving_nonlinreg = join(subbase_dir, "moving.nonlin.temp.nii.gz")
+        nonlin_reg_map_file = join(subbase_dir, "nonlin_ddf.map.nii.gz")
+        inv_nonlin_reg_map_file = join(subbase_dir, "inv.nonlin_ddf.map.nii.gz")
+
+        composed_ddf_file = join(subbase_dir, "composed_ddf.map.nii.gz")
+        inv_composed_ddf_file = join(subbase_dir, "inv.composed_ddf.map.nii.gz")
+
+        fixed_image = sitk.ReadImage(fixed, sitk.sitkFloat32)
+        moving_image = sitk.ReadImage(moving, sitk.sitkFloat32)
+        
+        # Create center-to-center alignment transform for better initialization
+        initial_transform = create_center_aligned_transform(fixed_image, moving_image)
+        print(f"Initial center alignment translation: {initial_transform.GetParameters()[:3]}")
+        
+        # Skip rigid registration and use center alignment directly
+        # The affine and nonlinear steps will handle the registration
+        print("🔧 Skipping rigid registration - using center alignment for initialization")
+        final_transform = initial_transform
+        
+        # Apply center alignment to get better initialized moving image
+        moved_image = sitk.Resample(moving_image, fixed_image, final_transform, sitk.sitkLinear, 0.0, moving_image.GetPixelID())
+
+        sitk.WriteImage(moved_image, centered_moving)
+
+        aligner = Aligner()
+        aligner.affine_reg(
+            fixed_file=fixed,
+            moving_file=centered_moving,
+            output_file=centered_moving_linreg,
+            ddf_file=lin_reg_map_file,
+            loss=linloss,
+            device=device,
+            max_epochs=le
+        )
+
+        disp_field, _ = LoadImage(image_only=False)(lin_reg_map_file)
+        disp_field = EnsureChannelFirst()(disp_field)
+
+        nonlin_reg = Warper()
+        nonlin_reg.nonlinear_reg(
+            target_file=fixed,
+            moving_file=centered_moving_linreg,
+            output_file=centered_moving_nonlinreg,  # Temporary file (not used in final result)
+            ddf_file=nonlin_reg_map_file,
+            inv_ddf_file=inv_nonlin_reg_map_file,
+            reg_penalty=1,
+            nn_input_size=64,
+            lr=1e-4,
+            max_epochs=ne,
+            loss=nonlinloss,
+            device=device,
+        )
+
+        composedeformation(nonlin_reg_map_file, lin_reg_map_file, composed_ddf_file)
+
+        # Apply the composed deformation field to the moving image
+        applydeformation(centered_moving, composed_ddf_file, output)
+
+        # Invert the composed deformation field this takes about 5-7 min
+        invertdeformationfield(composed_ddf_file, inv_composed_ddf_file)
+        
+        print(f"✅ Registration completed successfully: {output}")
+        return True
+    
+    except (OSError, IOError, RuntimeError) as e:
+        print(f"❌ Registration failed with error: {str(e)}")
+        return False
 
 
 if __name__ == "__main__":

@@ -42,9 +42,24 @@ def register_single_nifti_file(args):
         result['message'] = f"Input file does not exist: {input_file}"
         return result
     
-    # Check if output already exists
-    if os.path.exists(output_file):
-        result['message'] = f"Output file already exists, skipping: {output_file}"
+    # Check if output already exists (with atomic check to avoid race conditions)
+    import fcntl
+    import tempfile
+    
+    try:
+        # Try to create a lock file atomically
+        lock_file = output_file + '.lock'
+        with open(lock_file, 'x') as lock:
+            fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            
+            if os.path.exists(output_file):
+                result['message'] = f"Output file already exists, skipping: {output_file}"
+                result['success'] = True
+                os.unlink(lock_file)  # Clean up lock file
+                return result
+    except (FileExistsError, BlockingIOError):
+        # Another process is handling this file or file already exists
+        result['message'] = f"File being processed by another worker or already exists: {output_file}"
         result['success'] = True
         return result
     
@@ -60,16 +75,37 @@ def register_single_nifti_file(args):
         if os.path.exists(output_file):
             result['success'] = True
             result['message'] = f"Successfully registered: {output_file}"
+            # Clean up lock file
+            lock_file = output_file + '.lock'
+            if os.path.exists(lock_file):
+                try:
+                    os.unlink(lock_file)
+                except OSError:
+                    pass  # Lock file might already be cleaned up
         else:
             result['message'] = f"Registration failed - output file not created: {output_file}"
+            # Clean up lock file on failure
+            lock_file = output_file + '.lock'
+            if os.path.exists(lock_file):
+                try:
+                    os.unlink(lock_file)
+                except OSError:
+                    pass
             
     except Exception as e:
         result['message'] = f"Registration error: {str(e)}"
+        # Clean up lock file on exception
+        lock_file = output_file + '.lock'
+        if os.path.exists(lock_file):
+            try:
+                os.unlink(lock_file)
+            except OSError:
+                pass
     
     return result
 
 def register_nifti_directory(input_dir, template, output_dir, 
-                                 file_pattern="*.nii.gz", num_processes=12):
+                                 file_pattern="*.nii.gz", num_processes=1):
     """
     Process registration for all NIfTI files in a directory
     
@@ -204,8 +240,8 @@ def main():
                        help='Template NIfTI file for registration (if not specified, uses central file from input directory)')
     parser.add_argument('--pattern', default='*.nii.gz', 
                        help='File pattern to match (default: *.nii.gz)')
-    parser.add_argument('--processes', type=int, default=12,
-                       help='Number of parallel processes (default: 12)')
+    parser.add_argument('--processes', type=int, default=1,
+                       help='Number of parallel processes (default: 1, reduced to avoid GPU conflicts)')
     
     args = parser.parse_args()
     

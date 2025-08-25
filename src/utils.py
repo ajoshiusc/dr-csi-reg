@@ -1,30 +1,6 @@
 import nibabel as nib
 import numpy as np
-import SimpleITK as sitk
 from scipy.interpolate import NearestNDInterpolator
-
-
-def multires_registration(fixed_image, moving_image, initial_transform):
-    registration_method = sitk.ImageRegistrationMethod()
-    registration_method.SetMetricAsMattesMutualInformation(
-        numberOfHistogramBins=10)
-    registration_method.SetMetricSamplingStrategy(registration_method.RANDOM)
-    registration_method.SetMetricSamplingPercentage(0.5)
-    registration_method.SetInterpolator(sitk.sitkLinear)
-    registration_method.SetOptimizerAsGradientDescent(
-        learningRate=1.0, numberOfIterations=100, estimateLearningRate=registration_method.Once)
-    registration_method.SetOptimizerScalesFromPhysicalShift()
-    registration_method.SetInitialTransform(initial_transform, inPlace=False)
-    registration_method.SetShrinkFactorsPerLevel(shrinkFactors=[4, 2, 1])
-    registration_method.SetSmoothingSigmasPerLevel(smoothingSigmas=[2, 1, 0])
-    registration_method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOn()
-
-    final_transform = registration_method.Execute(fixed_image, moving_image)
-    print('Final metric value: {0}'.format(
-        registration_method.GetMetricValue()))
-    print('Optimizer\'s stopping condition, {0}'.format(
-        registration_method.GetOptimizerStopConditionDescription()))
-    return (final_transform, registration_method.GetMetricValue())
 
 
 def interpolate_zeros(image_data, mask_data):

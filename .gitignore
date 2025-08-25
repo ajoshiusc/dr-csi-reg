@@ -179,3 +179,4 @@ cython_debug/
 *.tfm
 *spectral_metadata.txt
 workflow_log.txt
+*.lock

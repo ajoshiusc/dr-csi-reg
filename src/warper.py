@@ -121,6 +121,17 @@ class Warper:
         max_epochs=1000,
         device="cuda",
     ):
+        # Check GPU availability and handle device assignment to avoid race conditions
+        import torch
+        if device == "cuda" and not torch.cuda.is_available():
+            print("⚠️  CUDA not available, falling back to CPU")
+            device = "cpu"
+        elif device == "cuda":
+            # Use current GPU context to avoid conflicts in parallel processing
+            gpu_id = torch.cuda.current_device() if torch.cuda.device_count() > 0 else 0
+            print(f"🔧 Using GPU {gpu_id} for registration")
+            torch.cuda.set_device(gpu_id)
+            
         if loss == "mse":
             image_loss = MSELoss()
         elif loss == "cc":
