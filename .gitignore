@@ -180,3 +180,4 @@ cython_debug/
 *spectral_metadata.txt
 workflow_log.txt
 *.lock
+*registration_metadata.txt
