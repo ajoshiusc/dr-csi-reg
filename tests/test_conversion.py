@@ -15,6 +15,16 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 from spectral_mat_to_nifti import convert_spectral_mat_to_nifti
 from spectral_nifti_to_mat import convert_spectral_nifti_to_mat
 
+@pytest.fixture
+def sample_mat_data():
+    """Create sample .mat data for testing."""
+    # Create 4D spectral data (spectral_points, X, Y, Z)
+    data = np.random.rand(5, 10, 8, 6).astype(np.float64)
+    return {
+        'data': data,  # Changed from 'img' to 'data'
+        'Resolution': np.array([2.0, 2.0, 3.0])
+    }
+
 
 class TestSpectralMatToNifti:
     
@@ -32,7 +42,7 @@ class TestSpectralMatToNifti:
         img_data = np.random.rand(5, 10, 8, 6).astype(np.float64)
         resolution = np.array([1.0, 1.0, 1.0])
         return {
-            'img': img_data,
+            'data': img_data,  # Changed from 'img' to 'data'
             'Resolution': resolution
         }
     
@@ -108,7 +118,7 @@ class TestSpectralMatToNifti:
         """Test error handling for invalid data shape."""
         # Create mat file with wrong shape (should be 4D)
         invalid_data = {
-            'img': np.random.rand(10, 8),  # Only 2D
+            'data': np.random.rand(10, 8),  # Only 2D - changed from 'img' to 'data'
             'Resolution': np.array([1.0, 1.0, 1.0])
         }
         mat_file = os.path.join(temp_dir, 'invalid_shape.mat')
@@ -192,8 +202,8 @@ class TestSpectralNiftiToMat:
         
         # Check reconstructed data
         reconstructed = sio.loadmat(output_mat)
-        assert 'img' in reconstructed
-        assert reconstructed['img'].shape == (3, 8, 6, 4)
+        assert 'data' in reconstructed  # Changed from 'img' to 'data'
+        assert reconstructed['data'].shape == (3, 8, 6, 4)
     
     def test_convert_spectral_nifti_to_mat_empty_directory(self, temp_dir):
         """Test error handling for empty NIfTI directory."""
@@ -229,11 +239,11 @@ class TestRoundTripConversion:
     
     def test_roundtrip_conversion_preserves_data(self, temp_dir):
         """Test that round-trip conversion preserves data integrity."""
-        # Create original data
+        # Create original data with float values (should be preserved exactly)
         original_img = np.random.rand(4, 12, 8, 6).astype(np.float64)
         original_resolution = np.array([1.5, 1.5, 2.0])
         original_data = {
-            'img': original_img,
+            'data': original_img,
             'Resolution': original_resolution
         }
         
@@ -245,22 +255,31 @@ class TestRoundTripConversion:
         nifti_dir = os.path.join(temp_dir, 'nifti')
         convert_spectral_mat_to_nifti(original_mat, nifti_dir)
         
+        # Verify NIfTI files were created
+        nifti_files = [f for f in os.listdir(nifti_dir) if f.endswith('.nii.gz')]
+        assert len(nifti_files) == 4, f"Expected 4 NIfTI files, got {len(nifti_files)}"
+        
         # Convert NIfTI -> .mat
         reconstructed_mat = os.path.join(temp_dir, 'reconstructed.mat')
-        convert_spectral_nifti_to_mat(nifti_dir, reconstructed_mat, original_mat)
+        result = convert_spectral_nifti_to_mat(nifti_dir, reconstructed_mat, original_mat)
+        
+        # Check conversion was successful
+        assert result == True
+        assert os.path.exists(reconstructed_mat)
         
         # Compare original and reconstructed data
         reconstructed_data = sio.loadmat(reconstructed_mat)
         
         # Check shapes match
-        assert original_img.shape == reconstructed_data['img'].shape
+        assert original_img.shape == reconstructed_data['data'].shape
         
-        # Check data values are approximately equal (allowing for floating point precision)
-        np.testing.assert_allclose(original_img, reconstructed_data['img'], rtol=1e-6, atol=1e-6)
+        # Check data types match
+        assert reconstructed_data['data'].dtype == original_img.dtype
         
-        # Check resolution is preserved
+        # Check data values are preserved with reasonable tolerance for NIfTI precision
+        np.testing.assert_allclose(original_img, reconstructed_data['data'], rtol=1e-6, atol=1e-6)
+
+        # Check that resolution is preserved from original metadata
         np.testing.assert_array_equal(original_resolution, reconstructed_data['Resolution'].flatten())
-
-
 if __name__ == '__main__':
     pytest.main([__file__])

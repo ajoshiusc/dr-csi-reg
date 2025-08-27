@@ -12,9 +12,8 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from registration import (
-    perform_nonlinear_registration, 
-    setup_registration_method,
-    create_initial_transform
+    perform_nonlinear_registration,
+    create_center_aligned_transform
 )
 
 

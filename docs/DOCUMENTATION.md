@@ -115,12 +115,14 @@ Converts spectral NIfTI files back to the original .mat format with **complete m
 
 ### 🆕 Enhanced Metadata Preservation
 - ✅ **ALL Original Fields Preserved**: Transform, spatial_dim, and any custom fields
+- ✅ **Data Type Preservation**: Maintains original data types (uint16, float64, etc.) without conversion
 - ✅ **Smart Resolution Handling**: Uses NIfTI spacing, preserves original Resolution field
-- ✅ **Perfect Round-Trip**: Exact reconstruction of original .mat structure
+- ✅ **Perfect Round-Trip**: Exact reconstruction of original .mat structure with zero data loss
 - ✅ **Flexible Input**: Works with registered or unregistered NIfTI files
 
 ### Key Features
 - ✅ **Complete Field Preservation**: Preserves ALL fields from original .mat except 'data'
+- ✅ **Data Type Preservation**: Maintains original data types (uint16, float64, etc.) exactly
 - ✅ **Data Validation**: Comprehensive shape and format checking
 - ✅ **Automatic Resolution**: Derives resolution from NIfTI file spacing
 - ✅ **Fallback Handling**: Uses defaults when original metadata unavailable

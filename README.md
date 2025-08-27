@@ -6,6 +6,7 @@ A robust spectral MRI data nonlinear registration pipeline with enhanced error h
 
 - ✅ **Eliminated Registration Failures**: Fixed SimpleITK mutual information errors using center alignment
 - ✅ **Enhanced Field Preservation**: Preserves all original .mat file metadata fields
+- ✅ **Data Type Preservation**: Maintains original data types (uint16, float64, etc.) without conversion
 - ✅ **Race Condition Protection**: Thread-safe parallel processing with file locking
 - ✅ **Streamlined Pipeline**: Optimized registration workflow (center alignment + PyTorch/MONAI)
 - ✅ **GPU Memory Management**: Better CUDA device handling for parallel operations
@@ -133,7 +134,7 @@ See [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) for complete usage guide and 
 **Processing Flow:**
 - **Step 1**: `.mat` → 31 individual NIfTI files (`spectral_point_000.nii.gz` ... `spectral_point_030.nii.gz`)
 - **Step 2**: Registration → 31 registered files (`spectral_point_000.reg.nii.gz` ... `spectral_point_030.reg.nii.gz`) 
-- **Step 3**: NIfTI → `.mat` with **ALL original fields preserved** except updated `data`
+- **Step 3**: NIfTI → `.mat` with **ALL original fields preserved** including **original data types** except updated `data`
 
 ## 🏃‍♂️ Example Workflows
 
@@ -166,7 +167,7 @@ python convert_nifti_to_mat.py \
     data/patient2_registration_output \
     data/reconstructed.mat \
     data/data_wip_patient2.mat
-# → Preserves ALL original .mat fields except 'data'
+# → Preserves ALL original .mat fields and data types except 'data'
 ```
 
 ### **Custom Resolution Override**

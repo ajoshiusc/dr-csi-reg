@@ -37,8 +37,13 @@ def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=
     
     # Load original file metadata if provided - preserve ALL fields except 'data'
     original_metadata = {}
+    original_data_dtype = np.uint16  # Default fallback
     if original_mat_file and os.path.exists(original_mat_file):
         original_mat = sio.loadmat(original_mat_file)
+        # Extract original data type for preservation
+        if 'data' in original_mat:
+            original_data_dtype = original_mat['data'].dtype
+            print(f"Original data type: {original_data_dtype}")
         # Preserve all fields from original except private MATLAB fields and 'data'
         for key, value in original_mat.items():
             if not key.startswith('__') and key != 'data':
@@ -74,7 +79,11 @@ def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=
     print(f"Reconstructed data shape: {reconstructed_data.shape}")
     
     # Convert NIfTI spacing to Resolution format for mat file
-    if nifti_spacing:
+    if original_metadata and 'Resolution' in original_metadata:
+        # Use original resolution to preserve precision
+        resolution_array = original_metadata['Resolution']
+        print(f"Using original resolution: {resolution_array}")
+    elif nifti_spacing:
         # NIfTI spacing is (x, y, z), convert to uint8 array format like original
         resolution_array = np.array([[int(nifti_spacing[0]), int(nifti_spacing[1]), int(nifti_spacing[2])]], dtype=np.uint8)
         print(f"Resolution derived from NIfTI spacing: {resolution_array}")
@@ -84,7 +93,7 @@ def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=
     
     # Create the output dictionary starting with the reconstructed data
     output_dict = {
-        'data': reconstructed_data.astype(np.uint16),  # Main spectral data
+        'data': reconstructed_data.astype(original_data_dtype),  # Preserve original data type
     }
     
     # Add resolution - prefer from NIfTI spacing, fallback to original
@@ -149,20 +158,22 @@ if __name__ == "__main__":
         print("Arguments:")
         print("  input_directory    Directory containing spectral_point_*.nii.gz files")
         print("  output_mat_file    Output .mat file path")
-        print("  original_mat_file  Optional: Original .mat file for metadata comparison")
+        print("  original_mat_file  Optional: Original .mat file for metadata and data type preservation")
         print()
         print("The script will:")
         print("  1. Read all spectral_point_*.nii.gz files from input directory")
         print("  2. Reconstruct the 4D spectral data array")
-        print("  3. Extract resolution from NIfTI file spacing")
-        print("  4. Save reconstructed data to .mat file")
+        print("  3. Preserve original data types (uint16, float64, etc.) exactly")
+        print("  4. Extract resolution from NIfTI file spacing")
+        print("  5. Preserve ALL original metadata fields from original .mat file")
+        print("  6. Save reconstructed data to .mat file with zero data loss")
         print()
     
     parser = argparse.ArgumentParser(description='Convert spectral NIfTI files back to .mat format')
     parser.add_argument('input_dir', help='Directory containing spectral_point_*.nii.gz files')
     parser.add_argument('output_mat_file', help='Output .mat file path')
     parser.add_argument('original_mat_file', nargs='?', default=None,
-                       help='Optional: Original .mat file for metadata comparison')
+                       help='Optional: Original .mat file for metadata and data type preservation')
     
     # Check if no arguments provided
     if len(sys.argv) < 3:

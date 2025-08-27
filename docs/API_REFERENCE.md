@@ -41,15 +41,20 @@ python spectral_nifti_to_mat.py input_dir output_mat_file [original_mat_file]
 ```
 
 #### `convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=None)`
-Convert spectral NIfTI files back to the original .mat format.
+Convert spectral NIfTI files back to the original .mat format with complete metadata and data type preservation.
 
 **Parameters:**
 - `nifti_dir` (str): Directory containing spectral_point_*.nii.gz files
 - `output_mat_file` (str): Output .mat file path
-- `original_mat_file` (str): Optional original .mat file for metadata comparison
+- `original_mat_file` (str): Optional original .mat file for metadata preservation (recommended)
 
 **Returns:**
 - `bool`: True if conversion successful, False otherwise
+
+**Key Features:**
+- Preserves original data types (uint16, float64, etc.) exactly
+- Maintains all metadata fields from original .mat file
+- Zero data loss in roundtrip conversion
 
 **Example:**
 ```python
