@@ -4,6 +4,60 @@
 # Part of the Diffusion-Relaxation Suite
 # Runs the complete registration module workflow with parallel processing
 
+# Function to show usage
+show_usage() {
+    echo "========================================="
+    echo "DR-CSI Registration Module Runner"
+    echo "Part of the Diffusion-Relaxation Suite"
+    echo "========================================="
+    echo ""
+    echo "Usage: $0 <input_mat_file> <output_directory> [parallel_processes]"
+    echo ""
+    echo "Arguments:"
+    echo "  input_mat_file      Path to input .mat file"
+    echo "  output_directory    Directory for all outputs (will be created)"
+    echo "  parallel_processes  Number of parallel processes (default: 4)"
+    echo ""
+    echo "Examples:"
+    echo "  $0 data/patient1.mat results/patient1_output"
+    echo "  $0 /path/to/data.mat /path/to/output 8"
+    echo ""
+    echo "Output structure:"
+    echo "  output_directory/"
+    echo "  ├── nifti/                    # Converted NIfTI files"
+    echo "  ├── registration/             # Registered NIfTI files"
+    echo "  └── final_reconstructed.mat   # Final registered .mat file"
+    echo ""
+    echo "Requirements:"
+    echo "  - NVIDIA GPU with CUDA support (for registration)"
+    echo "  - 8GB+ GPU memory recommended"
+    echo "  - 3-4 hours processing time for typical datasets"
+    echo ""
+}
+
+# Check arguments
+if [ $# -lt 2 ] || [ $# -gt 3 ]; then
+    show_usage
+    exit 1
+fi
+
+# Parse arguments
+INPUT_MAT="$1"
+OUTPUT_BASE_DIR="$2"
+PARALLEL_PROCESSES="${3:-4}"  # Default to 4 if not provided
+
+# Validate parallel processes argument
+if ! [[ "$PARALLEL_PROCESSES" =~ ^[0-9]+$ ]] || [ "$PARALLEL_PROCESSES" -lt 1 ] || [ "$PARALLEL_PROCESSES" -gt 16 ]; then
+    echo "ERROR: parallel_processes must be a number between 1 and 16"
+    echo "Got: $PARALLEL_PROCESSES"
+    exit 1
+fi
+
+# Set up paths
+NIFTI_OUTPUT="$OUTPUT_BASE_DIR/nifti"
+REGISTRATION_OUTPUT="$OUTPUT_BASE_DIR/registration"
+FINAL_MAT_OUTPUT="$OUTPUT_BASE_DIR/final_reconstructed.mat"
+
 set -e
 set -x  # Print each command before executing
 
@@ -12,26 +66,23 @@ echo "========================================="
 echo "DR-CSI Registration Module - Full Workflow (Diffusion-Relaxation Suite)"
 echo "Starting at: $(date)"
 echo "========================================="
+echo "Input file: $INPUT_MAT"
+echo "Output directory: $OUTPUT_BASE_DIR"
+echo "Parallel processes: $PARALLEL_PROCESSES"
 echo "Python version: $(python --version 2>&1)"
 echo "Python executable: $(which python)"
 echo "Current directory: $(pwd)"
 
-# Configuration
-INPUT_MAT="data/data_wip_patient2.mat"
-NIFTI_OUTPUT="data/workflow_nifti"
-REGISTRATION_OUTPUT="data/workflow_registration"
-FINAL_MAT_OUTPUT="data/workflow_final_reconstructed.mat"
-PARALLEL_PROCESSES=4  # Optimized for balanced parallel processing
-
-# Clean up any previous runs
-echo "Cleaning up previous workflow outputs..."
-rm -rf "$NIFTI_OUTPUT" "$REGISTRATION_OUTPUT" "$FINAL_MAT_OUTPUT"
-
-# Check input file exists
+# Validate input file
 if [ ! -f "$INPUT_MAT" ]; then
     echo "ERROR: Input .mat file not found: $INPUT_MAT"
     exit 1
 fi
+
+# Create output directory structure
+echo "Setting up output directories..."
+mkdir -p "$OUTPUT_BASE_DIR"
+rm -rf "$NIFTI_OUTPUT" "$REGISTRATION_OUTPUT" "$FINAL_MAT_OUTPUT"
 
 # Step 1: Convert .mat to NIfTI
 echo ""
@@ -86,11 +137,19 @@ fi
 
 set +x
 
-echo "\n========================================="
+echo ""
+echo "========================================="
 echo "DR-CSI Registration Module - COMPLETE!"
-echo "Final outputs:"
+echo "========================================="
+echo "Input file: $INPUT_MAT"
+echo "Output directory: $OUTPUT_BASE_DIR"
+echo ""
+echo "Generated outputs:"
 echo "  - NIfTI files: $NIFTI_OUTPUT"
-echo "  - Registered NIfTI: $REGISTRATION_OUTPUT"
+echo "  - Registered NIfTI: $REGISTRATION_OUTPUT"  
 echo "  - Final reconstructed .mat: $FINAL_MAT_OUTPUT"
+echo ""
+echo "Final .mat file size: $(du -h "$FINAL_MAT_OUTPUT" | cut -f1)"
+echo "Completed at: $(date)"
 echo "========================================="
 echo "Workflow completed successfully! 🎉"
