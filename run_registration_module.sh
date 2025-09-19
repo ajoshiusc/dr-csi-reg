@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Full DR-CSI Registration Module Workflow Script
+# DR-CSI Registration Module Runner
 # Part of the Diffusion-Relaxation Suite
-# Runs the complete module workflow with parallel registration
+# Runs the complete registration module workflow with parallel processing
 
 set -e
 set -x  # Print each command before executing

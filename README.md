@@ -23,7 +23,7 @@ source .venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 
 # 2. Run complete workflow (recommended)
-bash run_full_workflow.sh
+bash run_registration_module.sh
 
 # OR run individual steps:
 
@@ -42,7 +42,7 @@ python convert_nifti_to_mat.py data/registered_output data/final.mat data/data_w
 
 ```
 dr-csi-reg/
-├── 📄 run_full_workflow.sh            # Complete automated module workflow (recommended)
+├── 📄 run_registration_module.sh      # Complete automated module workflow (recommended)
 ├── 📄 convert_mat_to_nifti.py        # Wrapper: .mat → NIfTI conversion
 ├── 📄 convert_nifti_to_mat.py        # Wrapper: NIfTI → .mat conversion
 ├── 📄 register_nifti.py              # Wrapper: Enhanced registration module  
@@ -57,8 +57,7 @@ dr-csi-reg/
 │   ├── 📄 DOCUMENTATION.md               # Complete usage guide
 │   ├── 📄 IMPROVEMENTS_SUMMARY.md        # Recent enhancements summary
 │   └── 📄 API_REFERENCE.md, *.md         # Technical references
-├── 🗂️ data/                          # Input data and outputs
-└── 🗂️ examples/                      # Example workflows and scripts
+└── 🗂️ data/                          # Input data and outputs
 ```
 
 ## ⚠️ Important Requirements & Timing
@@ -71,7 +70,7 @@ dr-csi-reg/
 ### **Processing Time Estimates**
 - **Conversion (.mat ↔ NIfTI)**: ~30 seconds - 2 minutes
 - **Registration**: **3-4 hours** for 31 spectral files (GPU-accelerated)
-- **Full Module Workflow**: Use `bash run_full_workflow.sh` for complete automation
+- **Full Module Workflow**: Use `bash run_registration_module.sh` for complete automation
 - Complete module processing: Allow 4-5 hours total processing time
 
 ### **System Requirements**
@@ -142,7 +141,7 @@ See [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) for complete usage guide and 
 ### **Recommended: Full Automated Module Workflow**
 ```bash
 # Single command to run complete module workflow
-bash run_full_workflow.sh
+bash run_registration_module.sh
 # → Converts .mat → NIfTI → Register → Final .mat
 # → Uses parallel processing with race condition protection
 # → Preserves all original metadata fields
@@ -189,7 +188,7 @@ python register_nifti.py data/input_dir data/output_dir \
 ### **Full Module Workflow Script (Recommended)**
 ```bash
 # Automated complete module workflow with monitoring
-bash run_full_workflow.sh
+bash run_registration_module.sh
 
 # Monitor progress in another terminal
 tail -f workflow_log.txt

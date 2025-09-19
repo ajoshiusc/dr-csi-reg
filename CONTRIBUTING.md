@@ -23,11 +23,10 @@ make test
 
 ## Project Structure
 
-- `src/` - Core source code and modules
-- `docs/` - Documentation files
-- `data/` - Sample data and outputs  
-- `scripts/` - Utility scripts and job files
-- `examples/` - Example workflows
+- `src/` - Core source code
+- `docs/` - Documentation
+- `data/` - Test data and outputs
+- `scripts/` - Utility scripts
 - Root wrapper scripts for easy access
 
 ## Making Changes
@@ -42,8 +41,7 @@ make test
 1. Create new modules in `src/` directory
 2. Add wrapper scripts in root if needed for CLI access
 3. Update documentation in `docs/`
-4. Add examples to `examples/` directory
-5. Update tests and Makefile if necessary
+4. Update tests and Makefile if necessary
 
 ### Testing
 - Run `make test` before submitting changes
