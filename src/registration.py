@@ -160,7 +160,7 @@ def perform_nonlinear_registration(moving, fixed, output, linloss='cc', nonlinlo
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Runs rodreg full registration pipeline')
+    parser = argparse.ArgumentParser(description='Runs rodreg full registration module workflow')
     parser.add_argument('-m', type=str, help='Input subject file', required=True)
     parser.add_argument('-f', type=str, help='Reference image file ', required=True)
     parser.add_argument('-o', type=str, help='Output file name (non-linearly warped image).', required=True)

@@ -1,11 +1,12 @@
 [project]
 name = "dr-csi-reg"
 version = "1.0.0"
-description = "Spectral MRI data processing pipeline for .mat to NIfTI conversion and registration"
+description = "Spectral MRI data registration module for the Diffusion-Relaxation Suite - .mat to NIfTI conversion and nonlinear registration"
 authors = ["USC Laboratory"]
 license = "MIT"
 readme = "README.md"
 requires-python = ">=3.11"
+keywords = ["diffusion-relaxation", "spectral-mri", "registration", "nifti", "matlab", "medical-imaging", "module"]
 
 dependencies = [
     "scipy",

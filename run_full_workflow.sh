@@ -1,14 +1,15 @@
 #!/bin/bash
 
-# Full DR-CSI Registration Workflow Script
-# Runs the complete pipeline with parallel registration
+# Full DR-CSI Registration Module Workflow Script
+# Part of the Diffusion-Relaxation Suite
+# Runs the complete module workflow with parallel registration
 
 set -e
 set -x  # Print each command before executing
 
 # Print environment info
 echo "========================================="
-echo "DR-CSI Registration Pipeline - Full Workflow"
+echo "DR-CSI Registration Module - Full Workflow (Diffusion-Relaxation Suite)"
 echo "Starting at: $(date)"
 echo "========================================="
 echo "Python version: $(python --version 2>&1)"
@@ -86,7 +87,7 @@ fi
 set +x
 
 echo "\n========================================="
-echo "DR-CSI Registration Pipeline - COMPLETE!"
+echo "DR-CSI Registration Module - COMPLETE!"
 echo "Final outputs:"
 echo "  - NIfTI files: $NIFTI_OUTPUT"
 echo "  - Registered NIfTI: $REGISTRATION_OUTPUT"

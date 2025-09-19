@@ -1,9 +1,9 @@
-# DR-CSI Registration Pipeline Makefile
+# DR-CSI Registration Module Makefile
 
 .PHONY: help install clean example lint
 
 help:	## Show this help message
-	@echo "DR-CSI Registration Pipeline"
+	@echo "DR-CSI Registration Module (Diffusion-Relaxation Suite)"
 	@echo "Available commands:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
@@ -13,7 +13,7 @@ install:	## Install dependencies in virtual environment
 	@echo "✅ Installation complete. Run 'source .venv/bin/activate'"
 	rm -rf data/test_output
 
-example:	## Run complete pipeline example
+example:	## Run complete module workflow example
 	python examples/run_complete_pipeline.py
 
 lint:	## Check code quality (if you have pylint installed)

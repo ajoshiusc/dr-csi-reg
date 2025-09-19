@@ -1,4 +1,6 @@
-# DR-CSI Registration Pipeline - Improvements Summary
+# DR-CSI Registration Module - Improvements Summary
+
+**Part of the Diffusion-Relaxation Suite**
 
 ## 🎯 Major Issues Resolved
 
@@ -7,7 +9,7 @@
 **Solution**: 
 - Eliminated problematic rigid registration step using SimpleITK MattesMutualInformation
 - Implemented center-to-center alignment for better initialization
-- Streamlined pipeline: Center Alignment → Affine (PyTorch) → Non-linear (PyTorch)
+- Streamlined module workflow: Center Alignment → Affine (PyTorch) → Non-linear (PyTorch)
 
 **Result**: Zero registration failures, robust initialization
 
@@ -33,7 +35,7 @@
 
 ## 🚀 Performance Improvements
 
-### Registration Pipeline Optimizations
+### Registration Module Optimizations
 - **Eliminated rigid registration bottleneck**: No more SimpleITK mutual information failures
 - **Better initialization**: Center alignment provides optimal starting point
 - **GPU memory management**: Prevents CUDA out-of-memory errors
@@ -47,7 +49,7 @@
 
 ## 🔧 Technical Changes Made
 
-### Registration Pipeline (`src/registration.py`)
+### Registration Module (`src/registration.py`)
 ```python
 # REMOVED: Problematic rigid registration
 # final_transform, metric_value = multires_registration(fixed_image, moving_image, initial_transform)
@@ -129,4 +131,4 @@ elif device == "cuda":
 - ✅ All help messages: Reflect current functionality
 - ✅ Code comments: Explain new approaches and fixes
 
-The pipeline is now **production-ready** with robust error handling, complete metadata preservation, and reliable registration performance! 🚀
+The module is now **production-ready** with robust error handling, complete metadata preservation, and reliable registration performance! 🚀

@@ -7,7 +7,7 @@ Core modules for spectral MRI data conversion and registration.
 __version__ = "1.0.0"
 __author__ = "USC Laboratory"
 
-# Core pipeline modules
+# Core module components
 from . import spectral_mat_to_nifti
 from . import spectral_nifti_to_mat  
 from . import nifti_registration_pipeline

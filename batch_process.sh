@@ -13,7 +13,7 @@ if [ $# -eq 0 ]; then
     echo "  $0 \"/path/to/data_patient1.mat\" \"/path/to/data_patient2.mat\""
     echo ""
     echo "This script will:"
-    echo "  1. Process each .mat file through the full DR-CSI pipeline"
+    echo "  1. Process each .mat file through the full DR-CSI module workflow"
     echo "  2. Create separate output directories for each file"
     echo "  3. Generate final reconstructed .mat files"
     echo ""
@@ -25,7 +25,7 @@ PARALLEL_PROCESSES=4
 BASE_OUTPUT_DIR="batch_output_$(date +%Y%m%d_%H%M%S)"
 
 echo "========================================="
-echo "DR-CSI Batch Registration Pipeline"
+echo "DR-CSI Batch Registration Module (Diffusion-Relaxation Suite)"
 echo "Starting at: $(date)"
 echo "========================================="
 echo "Number of files to process: $#"

@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 """
-Example: Complete spectral MRI processing workflow
+Example: Complete spectral MRI processing         print("🎉 Complete module workflow finished successfully!")
+        print("Final reconstructed .mat file ready for analysis!")
+        
+    except Exception as e:
+        print(f"❌ Module workflow failed at step: {e}")ow
 
-This script demonstrates the full pipeline:
+This script demonstrates the full module workflow:
 1. Convert .mat to NIfTI files
 2. Register NIfTI files  
 3. Convert back to .mat format
@@ -14,8 +18,8 @@ import os
 import sys
 import subprocess
 
-def run_complete_pipeline():
-    """Run the complete spectral MRI processing pipeline
+def run_complete_module_workflow():
+    """Run the complete spectral MRI processing module workflow
     
     ⚠️ WARNING: Registration requires NVIDIA GPU and takes 3-4 hours!
     """
@@ -27,7 +31,7 @@ def run_complete_pipeline():
     registration_output = os.path.join(data_dir, "registered_nifti") 
     final_mat = os.path.join(data_dir, "final_reconstructed.mat")
     
-    print("=== DR-CSI Spectral MRI Processing Pipeline ===")
+    print("=== DR-CSI Spectral MRI Processing Module (Diffusion-Relaxation Suite) ===")
     print("⚠️  WARNING: Registration step requires NVIDIA GPU and takes 3-4 hours!")
     print("⚠️  Make sure you have sufficient time and GPU resources before proceeding.")
     print()
@@ -75,4 +79,4 @@ def run_complete_pipeline():
         sys.exit(1)
 
 if __name__ == "__main__":
-    run_complete_pipeline()
+    run_complete_module_workflow()

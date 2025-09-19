@@ -1,6 +1,8 @@
-# Spectral MRI Data Processing Pipeline Documentation
+# Spectral MRI Data Registration Module Documentation
 
-This repository contains a robust spectral MRI data processing pipeline with enhanced error handling, field preservation, and race condition protection. The pipeline includes three main components: conversion from .mat to NIfTI format, robust registration, and reverse conversion with complete metadata preservation.
+**Part of the Diffusion-Relaxation Suite**
+
+This repository contains a robust spectral MRI data registration module. The module includes three main components: conversion from .mat to NIfTI format, robust registration, and reverse conversion with complete metadata preservation.
 
 ## 🆕 Recent Major Improvements
 
@@ -12,22 +14,22 @@ This repository contains a robust spectral MRI data processing pipeline with enh
 
 ## Table of Contents
 
-1. [Full Workflow Script](#full-workflow-script) - **Recommended Approach**
+1. [Full Module Workflow Script](#full-module-workflow-script) - **Recommended Approach**
 2. [spectral_mat_to_nifti.py](#spectral_mat_to_niftipy) - Forward Conversion (.mat → NIfTI)
-3. [nifti_registration_pipeline.py](#nifti_registration_pipelinepy) - Enhanced Registration Pipeline
+3. [nifti_registration_pipeline.py](#nifti_registration_pipelinepy) - Enhanced Registration Module
 4. [spectral_nifti_to_mat.py](#spectral_nifti_to_matpy) - Reverse Conversion (NIfTI → .mat)
 5. [Installation & Setup](#installation--setup)
 6. [Usage Examples](#usage-examples)
 
 ---
 
-## Full Workflow Script
+## Full Module Workflow Script
 
 ### Purpose
-**Recommended approach**: Automated complete pipeline that handles all steps with proper error handling and monitoring.
+**Recommended approach**: Automated complete module workflow that handles all steps with proper error handling and monitoring.
 
 ### Key Features
-- ✅ **Complete Automation**: Single command runs entire pipeline
+- ✅ **Complete Automation**: Single command runs entire module workflow
 - ✅ **Progress Monitoring**: Real-time progress updates and logging
 - ✅ **Error Handling**: Validates each step before proceeding
 - ✅ **Race Condition Protection**: Thread-safe parallel processing
@@ -35,7 +37,7 @@ This repository contains a robust spectral MRI data processing pipeline with enh
 
 ### Usage
 ```bash
-# Run complete pipeline (recommended)
+# Run complete module workflow (recommended)
 bash run_full_workflow.sh
 
 # Monitor progress in separate terminal
@@ -44,7 +46,7 @@ tail -f workflow_log.txt
 
 ### What It Does
 1. Converts `data/data_wip_patient2.mat` → NIfTI files
-2. Registers all files using enhanced pipeline (center alignment + PyTorch/MONAI)  
+2. Registers all files using enhanced registration module (center alignment + PyTorch/MONAI)  
 3. Converts back to `.mat` preserving ALL original metadata fields
 4. Generates comprehensive processing reports
 
@@ -170,7 +172,7 @@ def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=
 ## nifti_registration_pipeline.py
 
 ### Purpose
-**Enhanced registration pipeline** with robust error handling, center alignment initialization, and race condition protection. Registers all files in a directory to a template using modern PyTorch/MONAI-based methods.
+**Enhanced registration module** with robust error handling, center alignment initialization, and race condition protection. Registers all files in a directory to a template using modern PyTorch/MONAI-based methods.
 
 ### 🆕 Major Improvements
 - ✅ **Eliminated SimpleITK Errors**: No more "All samples map outside moving image buffer"

@@ -1,6 +1,8 @@
-# DR-CSI Registration Pipeline
+# DR-CSI Registration Module
 
-A robust spectral MRI data nonlinear registration pipeline with enhanced error handling and field preservation.
+**Part of the Diffusion-Relaxation Suite**
+
+A robust spectral MRI data nonlinear registration module with enhanced error handling and field preservation. This module provides specialized tools for registering diffusion-relaxation spectral imaging data within the broader Diffusion-Relaxation Suite ecosystem.
 
 ## 🆕 Recent Improvements
 
@@ -11,7 +13,7 @@ A robust spectral MRI data nonlinear registration pipeline with enhanced error h
 - ✅ **Streamlined Pipeline**: Optimized registration workflow (center alignment + PyTorch/MONAI)
 - ✅ **GPU Memory Management**: Better CUDA device handling for parallel operations
 
-## 🚀 Quick Start - Full Workflow
+## 🚀 Quick Start - Module Usage
 
 ```bash
 # 1. Setup environment
@@ -40,10 +42,10 @@ python convert_nifti_to_mat.py data/registered_output data/final.mat data/data_w
 
 ```
 dr-csi-reg/
-├── 📄 run_full_workflow.sh            # Complete automated pipeline (recommended)
+├── 📄 run_full_workflow.sh            # Complete automated module workflow (recommended)
 ├── 📄 convert_mat_to_nifti.py        # Wrapper: .mat → NIfTI conversion
 ├── 📄 convert_nifti_to_mat.py        # Wrapper: NIfTI → .mat conversion
-├── 📄 register_nifti.py              # Wrapper: Enhanced registration pipeline  
+├── 📄 register_nifti.py              # Wrapper: Enhanced registration module  
 ├── 🗂️ src/                           # Core source code
 │   ├── 📄 spectral_mat_to_nifti.py       # .mat to NIfTI converter
 │   ├── 📄 spectral_nifti_to_mat.py       # NIfTI to .mat converter (metadata preservation)
@@ -69,8 +71,8 @@ dr-csi-reg/
 ### **Processing Time Estimates**
 - **Conversion (.mat ↔ NIfTI)**: ~30 seconds - 2 minutes
 - **Registration**: **3-4 hours** for 31 spectral files (GPU-accelerated)
-- **Full Workflow**: Use `bash run_full_workflow.sh` for complete automation
-- Complete pipeline: Allow 4-5 hours total processing time
+- **Full Module Workflow**: Use `bash run_full_workflow.sh` for complete automation
+- Complete module processing: Allow 4-5 hours total processing time
 
 ### **System Requirements**
 - Python 3.11+
@@ -97,9 +99,9 @@ dr-csi-reg/
 
 See [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) for complete usage guide and [docs/API_REFERENCE.md](docs/API_REFERENCE.md) for function references.
 
-## 🔧 Registration Pipeline Details
+## 🔧 Registration Module Details
 
-### **Enhanced Registration Workflow**
+### **Enhanced Registration Module Workflow**
 1. **Center Alignment**: Aligns image centers using SimpleITK transforms
 2. **Affine Registration**: PyTorch/MONAI-based robust affine alignment  
 3. **Non-linear Registration**: PyTorch/MONAI-based deformable registration
@@ -137,9 +139,9 @@ See [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) for complete usage guide and 
 
 ## 🏃‍♂️ Example Workflows
 
-### **Recommended: Full Automated Workflow**
+### **Recommended: Full Automated Module Workflow**
 ```bash
-# Single command to run complete pipeline
+# Single command to run complete module workflow
 bash run_full_workflow.sh
 # → Converts .mat → NIfTI → Register → Final .mat
 # → Uses parallel processing with race condition protection
@@ -184,9 +186,9 @@ python register_nifti.py data/input_dir data/output_dir \
 
 ## 💡 Advanced Usage
 
-### **Full Workflow Script (Recommended)**
+### **Full Module Workflow Script (Recommended)**
 ```bash
-# Automated complete pipeline with monitoring
+# Automated complete module workflow with monitoring
 bash run_full_workflow.sh
 
 # Monitor progress in another terminal
@@ -227,7 +229,7 @@ convert_spectral_nifti_to_mat("../data/registered", "../data/output.mat", "../da
 
 ## 🎨 Visualizations
 
-The pipeline automatically generates:
+The module automatically generates:
 - PNG previews of first 5 spectral points
 - Orthogonal view visualizations
 - Processing metadata and statistics
@@ -242,6 +244,6 @@ The pipeline automatically generates:
 - Virtual environment recommended
 - Dependencies: SimpleITK, scipy, nibabel, nilearn, numpy, torch, monai
 
-**⚠️ Note:** Registration pipeline requires GPU acceleration and can take 3-4 hours for typical datasets.
+**⚠️ Note:** Registration module requires GPU acceleration and can take 3-4 hours for typical datasets.
 
 ---

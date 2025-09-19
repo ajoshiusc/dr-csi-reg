@@ -1,4 +1,6 @@
-# API Reference
+# API Reference - DR-CSI Registration Module
+
+**Part of the Diffusion-Relaxation Suite**
 
 ## Function Reference
 
