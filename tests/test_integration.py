@@ -31,10 +31,9 @@ class TestFullWorkflow:
         resolution = np.array([2.0, 2.0, 3.0])
         
         mat_data = {
-            'img': spectral_data,
-            'Resolution': resolution,
-            'Transform': np.eye(4),
-            'spatial_dim': np.array([16, 16, 8])
+            'data': data,
+            'resolution': resolution,
+            'transform': np.eye(4),
         }
         
         input_mat = os.path.join(temp_dir, 'test_input.mat')

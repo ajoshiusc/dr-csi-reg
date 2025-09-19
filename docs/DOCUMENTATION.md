@@ -103,7 +103,7 @@ def convert_spectral_mat_to_nifti(mat_file, output_dir, res=None):
 
 ### Data Format Handling
 - **Input**: .mat file with `data` array of shape (N, X, Y, Z)
-- **Resolution**: Read from `Resolution` field in .mat file, fallback to [1,1,1]
+- **Resolution**: Read from `resolution` field in .mat file, fallback to [1,1,1]
 - **Output**: N individual NIfTI files with proper spatial resolution
 
 ---
@@ -114,9 +114,9 @@ def convert_spectral_mat_to_nifti(mat_file, output_dir, res=None):
 Converts spectral NIfTI files back to the original .mat format with **complete metadata preservation**, enabling perfect round-trip conversion.
 
 ### 🆕 Enhanced Metadata Preservation
-- ✅ **ALL Original Fields Preserved**: Transform, spatial_dim, and any custom fields
+- ✅ **ALL Original Fields Preserved**: transform, spatial_dim, and any custom fields
 - ✅ **Data Type Preservation**: Maintains original data types (uint16, float64, etc.) without conversion
-- ✅ **Smart Resolution Handling**: Uses NIfTI spacing, preserves original Resolution field
+- ✅ **Smart Resolution Handling**: Uses NIfTI spacing, preserves original resolution field
 - ✅ **Perfect Round-Trip**: Exact reconstruction of original .mat structure with zero data loss
 - ✅ **Flexible Input**: Works with registered or unregistered NIfTI files
 
@@ -163,7 +163,7 @@ def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=
 ### Output Format
 - **Data Structure**: Reconstructed 4D array (N, X, Y, Z)
 - **Resolution**: Derived from NIfTI spacing information
-- **Metadata**: Transform and spatial_dim preserved from original file
+- **Metadata**: transform and spatial_dim preserved from original file
 
 ---
 

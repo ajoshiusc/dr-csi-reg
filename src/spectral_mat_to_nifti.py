@@ -9,40 +9,125 @@ import SimpleITK as sitk
 
 def convert_spectral_mat_to_nifti(mat_file, output_dir, res=None):
     """
-    Convert spectral format .mat file to individual NIfTI files
-    
-    The data shape is (N, X, Y, Z) where:
-    - N is the spectral dimension (number of spectral points)
-    - X, Y, Z are the spatial dimensions
+    Convert spectral .mat files to individual NIfTI files with robust format handling
     
     Args:
         mat_file (str): Path to input .mat file
-        output_dir (str): Directory to save NIfTI files
+        output_dir (str): Output directory for NIfTI files
         res (list): Optional resolution override [x, y, z]
     
     Returns:
-        dict: Conversion results with statistics
+        int: Number of spectral points processed
     """
-    print("Processing spectral format file...")
-    
     if not os.path.exists(mat_file):
-        print(f"ERROR: file {mat_file} does not exist.")
+        print(f"Error: Input file does not exist: {mat_file}")
         return
     
     # Create output directory
     os.makedirs(output_dir, exist_ok=True)
     
-    mat = sio.loadmat(mat_file)
+    # Robust .mat file loading
+    print("Processing spectral format file...")
+    mat = None
     
-    # Extract data
-    img_data = mat['data']  # Shape: (31, 104, 52, 12)
+    # Try multiple loading methods for different .mat formats
+    try:
+        # Method 1: Standard scipy.io.loadmat
+        mat = sio.loadmat(mat_file)
+        print("✅ Loaded with standard method")
+    except Exception as e1:
+        print(f"Standard loading failed: {e1}")
+        try:
+            # Method 2: matlab_compatible mode
+            mat = sio.loadmat(mat_file, matlab_compatible=True)
+            print("✅ Loaded with matlab_compatible=True")
+        except Exception as e2:
+            print(f"MATLAB compatible loading failed: {e2}")
+            try:
+                # Method 3: squeeze_me=False for different structures
+                mat = sio.loadmat(mat_file, squeeze_me=False, struct_as_record=False)
+                print("✅ Loaded with squeeze_me=False")
+            except Exception as e3:
+                print(f"Alternative loading failed: {e3}")
+                try:
+                    # Method 4: Try HDF5 format (MATLAB v7.3)
+                    import h5py
+                    print("Trying HDF5 format (MATLAB v7.3)...")
+                    mat = {}
+                    with h5py.File(mat_file, 'r') as f:
+                        for key in f.keys():
+                            if not key.startswith('#'):
+                                try:
+                                    mat[key] = np.array(f[key])
+                                except Exception:
+                                    try:
+                                        mat[key] = f[key][()]
+                                    except Exception:
+                                        print(f"Warning: Could not load key '{key}'")
+                    print("✅ Loaded with HDF5 format")
+                except ImportError:
+                    print("❌ h5py not available for HDF5 format")
+                    raise Exception("All loading methods failed - file format not supported")
+                except Exception as e4:
+                    print(f"HDF5 loading failed: {e4}")
+                    raise Exception("All loading methods failed - file format not supported")
+    
+    if mat is None:
+        raise Exception("Could not load .mat file with any method")
+    
+    # Extract data with flexible key handling
+    img_data = None
+    data_keys = [k for k in mat.keys() if not k.startswith('__')]
+    print(f"Available keys in .mat file: {data_keys}")
+    
+    # Try to find the spectral data
+    if 'data' in mat:
+        img_data = mat['data']
+    elif 'Data' in mat:
+        img_data = mat['Data']
+    elif 'img' in mat:
+        img_data = mat['img']
+    elif len(data_keys) == 1:
+        # If only one data key, assume it's the spectral data
+        img_data = mat[data_keys[0]]
+        print(f"Using single data key: {data_keys[0]}")
+    else:
+        # Look for the largest array (likely the spectral data)
+        largest_key = None
+        largest_size = 0
+        for key in data_keys:
+            if hasattr(mat[key], 'size') and mat[key].size > largest_size:
+                largest_size = mat[key].size
+                largest_key = key
+        if largest_key:
+            img_data = mat[largest_key]
+            print(f"Using largest array key: {largest_key}")
+    
+    if img_data is None:
+        raise Exception(f"Could not find spectral data in .mat file. Available keys: {data_keys}")
+    
+    # Ensure data is numpy array
+    img_data = np.array(img_data)
+    
+    # Handle different data arrangements
+    if len(img_data.shape) == 3:
+        # Add spectral dimension if missing
+        img_data = img_data[np.newaxis, ...]
+        print("⚠️  Added spectral dimension to 3D data")
+    elif len(img_data.shape) != 4:
+        print(f"⚠️  Unexpected data shape: {img_data.shape}")
+        if img_data.size == 0:
+            raise Exception("Data array is empty")
+    
+    # Shape should be (spectral, x, y, z)
+    print(f"Final data shape: {img_data.shape}")
     
     # Read resolution from mat file, with fallback to parameter or default
     if res is not None:
         resolution = res
         print(f"Using provided resolution override: {resolution}")
-    elif 'Resolution' in mat:
-        resolution = mat['Resolution'][0]
+    elif 'resolution' in mat:
+        resolution = mat['resolution'][0]
         print(f"Using resolution from mat file: {resolution}")
     else:
         resolution = [1, 1, 1]

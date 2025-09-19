@@ -56,8 +56,7 @@ dr-csi-reg/
 │   ├── 📄 IMPROVEMENTS_SUMMARY.md        # Recent enhancements summary
 │   └── 📄 API_REFERENCE.md, *.md         # Technical references
 ├── 🗂️ data/                          # Input data and outputs
-├── 🗂️ examples/                      # Example workflows and scripts
-└── 🗂️ tests/                         # Test suite (some tests need updates)
+└── 🗂️ examples/                      # Example workflows and scripts
 ```
 
 ## ⚠️ Important Requirements & Timing
@@ -122,12 +121,12 @@ See [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) for complete usage guide and 
 
 **Input .mat structure:**
 ```python
+```python
 {
-    'data': (31, 104, 52, 12),        # (spectral_points, x, y, z)
-    'Resolution': [[1, 1, 1]],        # [x_res, y_res, z_res] in mm
-    'spatial_dim': [[104, 52, 12]],   # Spatial dimensions
-    'Transform': np.eye(4),           # Transform matrix (preserved)
-    # ... all other fields preserved in output
+    'data': np.array(...),            # 4D spectral data
+    'resolution': [[1, 1, 1]],        # [x_res, y_res, z_res] in mm
+    'spatial_dim': [[32, 32, 16]],    # [x_dim, y_dim, z_dim] (optional)
+    'transform': np.eye(4),           # Transform matrix (preserved)
 }
 ```
 

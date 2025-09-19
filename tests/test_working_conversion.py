@@ -49,8 +49,8 @@ class TestWorkingConversion:
         resolution = np.array([2.0, 2.0, 3.0])
         
         mat_data = {
-            'data': test_data,  # Correct key name
-            'Resolution': resolution
+            'data': data,
+            'resolution': resolution
         }
         
         # Save mat file

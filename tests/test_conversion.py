@@ -22,7 +22,7 @@ def sample_mat_data():
     data = np.random.rand(5, 10, 8, 6).astype(np.float64)
     return {
         'data': data,  # Changed from 'img' to 'data'
-        'Resolution': np.array([2.0, 2.0, 3.0])
+        'resolution': np.array([2.0, 2.0, 3.0])
     }
 
 
@@ -43,7 +43,7 @@ class TestSpectralMatToNifti:
         resolution = np.array([1.0, 1.0, 1.0])
         return {
             'data': img_data,  # Changed from 'img' to 'data'
-            'Resolution': resolution
+            'resolution': resolution
         }
     
     @pytest.fixture
@@ -79,7 +79,7 @@ class TestSpectralMatToNifti:
     def test_convert_spectral_mat_to_nifti_with_custom_resolution(self, temp_dir, sample_mat_data):
         """Test conversion with custom resolution."""
         # Create mat file with custom resolution
-        sample_mat_data['Resolution'] = np.array([2.0, 2.0, 3.0])
+        sample_mat_data['resolution'] = np.array([2.0, 2.0, 3.0])
         mat_file = os.path.join(temp_dir, 'test_custom_res.mat')
         sio.savemat(mat_file, sample_mat_data)
         
@@ -119,7 +119,7 @@ class TestSpectralMatToNifti:
         # Create mat file with wrong shape (should be 4D)
         invalid_data = {
             'data': np.random.rand(10, 8),  # Only 2D - changed from 'img' to 'data'
-            'Resolution': np.array([1.0, 1.0, 1.0])
+            'resolution': np.array([1.0, 1.0, 1.0])
         }
         mat_file = os.path.join(temp_dir, 'invalid_shape.mat')
         sio.savemat(mat_file, invalid_data)
@@ -164,8 +164,8 @@ class TestSpectralNiftiToMat:
         """Create an original .mat file for metadata reference."""
         original_data = {
             'img': np.random.rand(3, 8, 6, 4),
-            'Resolution': np.array([2.0, 2.0, 3.0]),
-            'Transform': np.eye(4),
+            'resolution': np.array([2.0, 2.0, 3.0]),
+            'transform': np.eye(4),
             'spatial_dim': np.array([8, 6, 4])
         }
         mat_file = os.path.join(temp_dir, 'original.mat')
@@ -187,7 +187,7 @@ class TestSpectralNiftiToMat:
         reconstructed = sio.loadmat(output_mat)
         assert 'img' in reconstructed
         assert reconstructed['img'].shape == (3, 8, 6, 4)  # (spectral, x, y, z)
-        assert 'Resolution' in reconstructed
+        assert 'resolution' in reconstructed
     
     def test_convert_spectral_nifti_to_mat_no_original(self, sample_nifti_dir, temp_dir):
         """Test conversion without original .mat file for reference."""
@@ -244,7 +244,7 @@ class TestRoundTripConversion:
         original_resolution = np.array([1.5, 1.5, 2.0])
         original_data = {
             'data': original_img,
-            'Resolution': original_resolution
+            'resolution': original_resolution
         }
         
         # Save original .mat file
@@ -280,6 +280,7 @@ class TestRoundTripConversion:
         np.testing.assert_allclose(original_img, reconstructed_data['data'], rtol=1e-6, atol=1e-6)
 
         # Check that resolution is preserved from original metadata
-        np.testing.assert_array_equal(original_resolution, reconstructed_data['Resolution'].flatten())
+        # Verify original resolution is preserved exactly
+        np.testing.assert_array_equal(original_resolution, reconstructed_data['resolution'].flatten())
 if __name__ == '__main__':
     pytest.main([__file__])
