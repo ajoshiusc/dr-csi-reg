@@ -2,16 +2,7 @@
 
 **Part of the Diffusion-Relaxation Suite**
 
-A robust spectral MRI data nonlinear registration module with enhanced error handling and field preservation. This module provides specialized tools for registering diffusion-relaxation spectral imaging data within the broader Diffusion-Relaxation Suite ecosystem.
-
-## 🆕 Recent Improvements
-
-- ✅ **Eliminated Registration Failures**: Fixed SimpleITK mutual information errors using center alignment
-- ✅ **Enhanced Field Preservation**: Preserves all original .mat file metadata fields
-- ✅ **Data Type Preservation**: Maintains original data types (uint16, float64, etc.) without conversion
-- ✅ **Race Condition Protection**: Thread-safe parallel processing with file locking
-- ✅ **Streamlined Pipeline**: Optimized registration workflow (center alignment + PyTorch/MONAI)
-- ✅ **GPU Memory Management**: Better CUDA device handling for parallel operations
+A robust spectral MRI data nonlinear registration module with. This module provides specialized tools for registering diffusion-relaxation spectral imaging data within the broader Diffusion-Relaxation Suite.
 
 ## 🚀 Quick Start - Module Usage
 
@@ -23,7 +14,7 @@ source .venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 
 # 2. Run complete workflow (recommended)
-bash run_registration_module.sh
+bash run_registration_module.sh data/data_wip_patient2.mat output_results
 
 # OR run individual steps:
 
@@ -64,27 +55,21 @@ dr-csi-reg/
 
 ### **GPU Requirement for Registration**
 - **Registration step requires NVIDIA GPU** with CUDA support
-- Minimum 8GB GPU memory recommended for typical spectral datasets
+- Minimum 4GB GPU memory recommended for typical spectral datasets
 - Automatic fallback to CPU if CUDA not available (slower)
 
 ### **Processing Time Estimates**
 - **Conversion (.mat ↔ NIfTI)**: ~30 seconds - 2 minutes
 - **Registration**: **3-4 hours** for 31 spectral files (GPU-accelerated)
-- **Full Module Workflow**: Use `bash run_registration_module.sh` for complete automation
+- **Full Module Workflow**: Use `bash run_registration_module.sh <input.mat> <output_dir>` for complete automation
 - Complete module processing: Allow 4-5 hours total processing time
 
 ### **System Requirements**
 - Python 3.11+
 - NVIDIA GPU with CUDA support (recommended)
-- 8GB+ GPU memory (recommended)
+- 4GB+ GPU memory (recommended)
 - 16GB+ system RAM
 - ~5GB free disk space for outputs
-
-### **Key Improvements**
-- 🔧 **No more SimpleITK errors**: Eliminated "All samples map outside moving image buffer"
-- 🔧 **Better initialization**: Center-to-center alignment before registration
-- 🔧 **Thread-safe**: File locking prevents race conditions in parallel processing
-- 🔧 **Field preservation**: All original .mat metadata preserved in final output
 
 ## 📁 Core Scripts
 
@@ -105,13 +90,6 @@ See [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) for complete usage guide and 
 2. **Affine Registration**: PyTorch/MONAI-based robust affine alignment  
 3. **Non-linear Registration**: PyTorch/MONAI-based deformable registration
 4. **Composition**: Combines transformations for final output
-
-### **Key Improvements Over Previous Versions**
-- ✅ **Eliminated SimpleITK Errors**: No more "All samples map outside moving image buffer"
-- ✅ **Robust Initialization**: Center-to-center alignment provides better starting point
-- ✅ **GPU Memory Management**: Smart CUDA device allocation prevents conflicts
-- ✅ **Thread Safety**: File locking prevents race conditions in parallel processing
-- ✅ **Error Handling**: Graceful fallback mechanisms for registration failures
 
 ### **Parallel Processing Notes**
 - Default: `--processes 4` (can be adjusted based on system resources)
@@ -141,10 +119,31 @@ See [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) for complete usage guide and 
 ### **Recommended: Full Automated Module Workflow**
 ```bash
 # Single command to run complete module workflow
-bash run_registration_module.sh
+bash run_registration_module.sh data/input.mat results/output_dir
 # → Converts .mat → NIfTI → Register → Final .mat
 # → Uses parallel processing with race condition protection
 # → Preserves all original metadata fields
+```
+
+**Usage:**
+```bash
+# Basic usage (4 parallel processes by default)
+bash run_registration_module.sh <input_mat_file> <output_directory>
+
+# With custom parallel processes
+bash run_registration_module.sh <input_mat_file> <output_directory> <processes>
+
+# Examples:
+bash run_registration_module.sh data/patient1.mat results/patient1
+bash run_registration_module.sh /path/to/data.mat /path/to/output 8
+```
+
+**Output Structure:**
+```
+output_directory/
+├── nifti/                    # Converted NIfTI files (31 files)
+├── registration/             # Registered NIfTI files  
+└── final_reconstructed.mat   # Final registered .mat file
 ```
 
 ### **Manual Step-by-Step Workflow**
@@ -188,10 +187,10 @@ python register_nifti.py data/input_dir data/output_dir \
 ### **Full Module Workflow Script (Recommended)**
 ```bash
 # Automated complete module workflow with monitoring
-bash run_registration_module.sh
+bash run_registration_module.sh data/input.mat results/output 8
 
 # Monitor progress in another terminal
-tail -f workflow_log.txt
+tail -f results/output/registration_log.txt
 ```
 
 ### **Custom Parameters**
@@ -238,7 +237,7 @@ The module automatically generates:
 
 - Python 3.11+
 - **NVIDIA GPU with CUDA support** (required for registration)
-- 8GB+ GPU memory (recommended)
+- 4GB+ GPU memory (recommended)
 - 16GB+ system RAM 
 - Virtual environment recommended
 - Dependencies: SimpleITK, scipy, nibabel, nilearn, numpy, torch, monai

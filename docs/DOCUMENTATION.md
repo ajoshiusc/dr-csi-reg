@@ -38,10 +38,14 @@ This repository contains a robust spectral MRI data registration module. The mod
 ### Usage
 ```bash
 # Run complete module workflow (recommended)
-bash run_registration_module.sh
+bash run_registration_module.sh <input_mat_file> <output_directory> [parallel_processes]
+
+# Examples:
+bash run_registration_module.sh data/patient1.mat results/patient1_output
+bash run_registration_module.sh /path/to/data.mat /path/to/output 8
 
 # Monitor progress in separate terminal
-tail -f workflow_log.txt
+tail -f <output_directory>/registration_log.txt
 ```
 
 ### What It Does
