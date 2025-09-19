@@ -129,8 +129,9 @@ def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=
         img_sitk = sitk.ReadImage(nifti_file)
         img_array = sitk.GetArrayFromImage(img_sitk)
         
-        # Convert from SimpleITK (z,y,x) back to original (x,y,z) format
-        img_array = img_array.transpose(2, 1, 0)  # (z,y,x) -> (x,y,z)
+        # SimpleITK gives us (z, y, x) which is already the correct spatial ordering
+        # No need to transpose since original data was (z, y, x, spectral)
+        # img_array shape is already (z, y, x)
         
         spectral_volumes.append(img_array)
         
@@ -141,8 +142,9 @@ def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=
             print(f"  Spacing from NIfTI file: {nifti_spacing}")
     
     # Stack all spectral volumes to create 4D array
-    # Shape should be (num_spectral, x, y, z) = (31, 104, 52, 12)
-    reconstructed_data = np.stack(spectral_volumes, axis=0)
+    # Shape should be (z, y, x, num_spectral) = (12, 52, 104, 31)
+    # Stack along the last axis to put spectral dimension last
+    reconstructed_data = np.stack(spectral_volumes, axis=-1)
     print(f"Reconstructed data shape: {reconstructed_data.shape}")
     
     # Convert NIfTI spacing to resolution format for mat file
@@ -177,7 +179,7 @@ def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=
         # Use default metadata if original not available
         output_dict.update({
             'transform': np.eye(4, dtype=np.uint8),
-            'spatial_dim': np.array([[reconstructed_data.shape[1], reconstructed_data.shape[2], reconstructed_data.shape[3]]], dtype=np.uint8)
+            'spatial_dim': np.array([[reconstructed_data.shape[0], reconstructed_data.shape[1], reconstructed_data.shape[2]]], dtype=np.uint8)
         })
         print("Using default metadata (no original file provided)")
     

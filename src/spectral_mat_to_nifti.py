@@ -111,18 +111,16 @@ def convert_spectral_mat_to_nifti(mat_file, output_dir, res=None):
     
     # Handle different data arrangements
     if len(img_data.shape) == 3:
-        # Add spectral dimension if missing
-        img_data = img_data[np.newaxis, ...]
+        # Add spectral dimension if missing (as last dimension)
+        img_data = img_data[..., np.newaxis]
         print("⚠️  Added spectral dimension to 3D data")
     elif len(img_data.shape) != 4:
         print(f"⚠️  Unexpected data shape: {img_data.shape}")
         if img_data.size == 0:
             raise Exception("Data array is empty")
-    
-    # Shape should be (spectral, x, y, z)
-    print(f"Final data shape: {img_data.shape}")
-    
-    # Read resolution from mat file, with fallback to parameter or default
+
+    # Shape should be (z, y, x, spectral) - spectral dimension is LAST
+    print(f"Final data shape: {img_data.shape}")    # Read resolution from mat file, with fallback to parameter or default
     if res is not None:
         resolution = res
         print(f"Using provided resolution override: {resolution}")
@@ -141,27 +139,25 @@ def convert_spectral_mat_to_nifti(mat_file, output_dir, res=None):
         print(f"Warning: Invalid resolution format, using default spacing: {spacing}")
     
     print(f"Original data shape: {img_data.shape}")
-    print(f"Spectral points: {img_data.shape[0]}")
-    print(f"Spatial dimensions: {img_data.shape[1:]}")
+    print(f"Spectral points: {img_data.shape[-1]}")
+    print(f"Spatial dimensions: {img_data.shape[:-1]}")
     print(f"Resolution from file: {resolution}")
     print(f"Spacing used: {spacing}")
-    
-    # The data needs to be reorganized:
-    # Original: (spectral, x, y, z) = (31, 104, 52, 12)
-    # For NIfTI: we want (x, y, z) for each spectral point
-    
+
+    # The data organization is:
+    # Original: (z, y, x, spectral) = (12, 52, 104, 31)
+    # For NIfTI: we want (z, y, x) for each spectral point
+
     # Create one NIfTI file for each spectral point
-    num_spectral_points = img_data.shape[0]  # 31 spectral points
-    
+    num_spectral_points = img_data.shape[-1]  # Last dimension is spectral
+
     for spectral_idx in range(num_spectral_points):
         # Extract the spatial volume for this spectral point
-        # Shape will be (104, 52, 12)
-        spatial_volume = img_data[spectral_idx, :, :, :]
-        
-        # Convert to SimpleITK format
-        # SimpleITK expects (z, y, x) ordering, so we need to transpose
-        # Current: (x=104, y=52, z=12) -> Need: (z=12, y=52, x=104)
-        spatial_volume_sitk = spatial_volume.transpose(2, 1, 0)  # (z, y, x)
+        # Shape will be (12, 52, 104) = (z, y, x)
+        spatial_volume = img_data[:, :, :, spectral_idx]        # Convert to SimpleITK format
+        # SimpleITK expects (z, y, x) ordering, and our data is already in (z, y, x)
+        # Current: (z=12, y=52, x=104) -> Already correct for SimpleITK
+        spatial_volume_sitk = spatial_volume  # Already (z, y, x)
         
         img_sitk = sitk.GetImageFromArray(spatial_volume_sitk)
         
@@ -195,8 +191,8 @@ def convert_spectral_mat_to_nifti(mat_file, output_dir, res=None):
     with open(metadata_file, 'w') as f:
         f.write("Data from spectral format .mat file\n")
         f.write(f"Original data shape: {img_data.shape}\n")
-        f.write(f"Spectral dimension: {img_data.shape[0]} (first dimension)\n")
-        f.write(f"Spatial dimensions: {img_data.shape[1:]} (x, y, z)\n")
+        f.write(f"Spectral dimension: {img_data.shape[-1]} (last dimension)\n")
+        f.write(f"Spatial dimensions: {img_data.shape[:-1]} (z, y, x)\n")
         f.write(f"Resolution: {resolution}\n")
         f.write(f"Number of NIfTI files created: {num_spectral_points}\n")
         f.write(f"Spacing used: {spacing}\n")
