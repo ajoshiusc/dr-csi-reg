@@ -21,9 +21,14 @@ python run_registration_module.py data/data_wip_patient2.mat output_results
 # 2a. Convert spectral .mat to NIfTI files
 python convert_mat_to_nifti.py data/data_wip_patient2.mat data/output_nifti
 
-# 2b. Register all spectral files (auto-selects central template)
+# 2b. Register all spectral files (auto-generates average template by default)
    # With custom template and parallel processing
    python register_nifti.py data/workflow_nifti data/registered_nifti --template data/workflow_nifti/spectral_point_000.nii.gz --processes 4
+   
+   # Using different template strategies:
+   python register_nifti.py data/workflow_nifti data/registered_nifti --template-strategy average    # Default: Average volume
+   python register_nifti.py data/workflow_nifti data/registered_nifti --template-strategy central    # Central volume
+   python register_nifti.py data/workflow_nifti data/registered_nifti --template-strategy specified --template volume_010.nii.gz  # Specific volume
 
 # 2c. Convert back to .mat with preserved metadata
 python convert_nifti_to_mat.py data/registered_output data/final.mat data/data_wip_patient2.mat
@@ -92,11 +97,18 @@ See [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) for complete usage guide and 
 4. **Composition**: Combines transformations for final output
 
 ### **Template Selection for Registration**
-- **Automatic Selection**: If no template is specified, the system automatically selects the central/middle volume from all spectral files as the reference
-- **Selection Logic**: Files are sorted alphabetically, and the middle file is chosen (e.g., for N files, file at index N//2 is selected)
-- **Rationale**: The central volume typically provides optimal signal-to-noise ratio and represents a balanced point in the spectral range
-- **Custom Override**: You can specify a different template using `--template` option if needed
-- **Example**: For spectral files 000-030, volume 015 would be automatically selected as the reference template
+- **Default Strategy - Average Template**: The system automatically generates an average volume template from all spectral files, providing optimal registration reference by combining signal from all volumes
+- **Alternative Strategies**: 
+  - **Central Volume**: Uses the middle volume (e.g., for files 000-030, volume 015 is selected)
+  - **Specified Volume**: Allows manual selection of any specific volume as template
+- **Strategy Benefits**:
+  - **Average Template**: Superior SNR and represents balanced spectral characteristics across all volumes
+  - **Central Volume**: Quick selection, good for datasets with consistent quality
+  - **Specified Volume**: Manual control for custom requirements
+- **Usage**: 
+  - Default: `--template-strategy average` (automatically used)
+  - Central: `--template-strategy central`
+  - Custom: `--template-strategy specified --template volume_010.nii.gz`
 
 ### **Parallel Processing Notes**
 - Default: `--processes 4` (can be adjusted based on system resources)

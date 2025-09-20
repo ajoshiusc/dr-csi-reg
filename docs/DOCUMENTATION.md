@@ -192,17 +192,22 @@ def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=
 4. **Transformation Composition**: Combines all transforms for final output
 
 ### Template Selection Strategy
-- **Automatic Selection**: When no template is specified, the system automatically selects the central/middle volume from all available spectral files
-- **Selection Algorithm**: 
-  - Files are sorted alphabetically (e.g., `spectral_point_000.nii.gz`, `spectral_point_001.nii.gz`, ...)
-  - The middle file is chosen using index `N//2` where N is the total number of files
-  - For spectral datasets with files 000 through 030, volume 015 would be selected
-- **Rationale**: 
-  - Central volumes typically have optimal signal-to-noise ratio
-  - Represents a balanced point in the spectral range
-  - Avoids potential artifacts at spectral extremes
-- **Custom Override**: Use `--template` option to specify a different reference volume if needed
-- **Output**: The system reports which template was auto-selected during processing
+- **Default - Average Template Generation**: When no template is specified, the system automatically generates an average volume template from all available spectral files
+- **Template Generation Process**: 
+  - **Average Strategy** (default): Computes voxel-wise average across all volumes, providing superior signal-to-noise ratio and balanced spectral characteristics
+  - **Central Strategy**: Selects the middle volume from sorted files (e.g., for files 000-030, volume 015 is selected)
+  - **Specified Strategy**: Uses a manually specified volume as template
+- **Algorithm Details**:
+  - Files are identified using the specified pattern (default: `*.nii.gz`)
+  - Already processed files (ending with `.reg.nii.gz`) are excluded
+  - For average template: All volumes are loaded, validated for consistent dimensions, and averaged voxel-wise
+  - For central template: Files are sorted alphabetically, middle file selected using index `N//2`
+- **Benefits of Average Template**:
+  - **Higher SNR**: Averaging reduces noise while preserving signal
+  - **Balanced Reference**: Represents combined characteristics across entire spectral range
+  - **Robust Registration**: Provides stable reference less sensitive to individual volume artifacts
+- **Usage Control**: Use `--template-strategy` option to select generation method (average/central/specified)
+- **Output**: The system reports which template strategy was used and saves generated templates for inspection
 
 ### ⚠️ System Requirements
 - **NVIDIA GPU with CUDA support** (recommended, falls back to CPU)
@@ -212,7 +217,8 @@ def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=
 - **Parallel processes**: Use `--processes 4` (default, can be adjusted based on system resources)
 
 ### Key Features
-- ✅ **Auto-Template Selection**: Automatically selects central file when none specified
+- ✅ **Smart Template Generation**: Auto-generates average volume template by default for optimal registration reference
+- ✅ **Multiple Template Strategies**: Average (default), central volume, or specified template options
 - ✅ **Generic File Support**: Works with any NIfTI files (not spectral-specific)
 - ✅ **Thread-Safe Processing**: Atomic file operations prevent race conditions
 - ✅ **Comprehensive Reporting**: Detailed success/failure tracking with metadata
@@ -221,17 +227,27 @@ def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=
 
 ### Command-Line Usage
 ```bash
-# Recommended usage (single process for GPU systems)
+# Recommended usage with default average template (single process for GPU systems)
 python nifti_registration_pipeline.py input_dir output_dir --processes 4
 
-# With custom template
+# Using different template strategies
+python nifti_registration_pipeline.py input_dir output_dir \
+    --template-strategy average \
+    --processes 4  # Default strategy
+
+python nifti_registration_pipeline.py input_dir output_dir \
+    --template-strategy central \
+    --processes 4  # Use central volume
+
+# With custom template (specified strategy)
 python nifti_registration_pipeline.py input_dir output_dir \
     --template custom_template.nii.gz \
     --processes 4
 
-# Custom file pattern
+# Custom file pattern with average template
 python nifti_registration_pipeline.py input_dir output_dir \
     --pattern "spectral_point_0*.nii.gz" \
+    --template-strategy average \
     --processes 4
 
 # Example with spectral data
@@ -244,23 +260,25 @@ python nifti_registration_pipeline.py \
 ### Arguments
 - `input_dir`: Directory containing input NIfTI files
 - `output_dir`: Output directory for registered files
-- `--template`: Template NIfTI file (if not specified, uses central file from input directory)
+- `--template`: Template NIfTI file (if not specified, auto-generates based on strategy)
+- `--template-strategy`: Template generation strategy - "average" (default), "central", or "specified"
 - `--pattern`: File pattern to match (default: `*.nii.gz`)
 - `--processes`: Number of parallel processes (default: 4)
 
 ### Function Signatures
 ```python
 def register_nifti_directory(input_dir, template, output_dir, 
-                           file_pattern="*.nii.gz", num_processes=4):
+                           file_pattern="*.nii.gz", num_processes=4, template_strategy="average"):
     """
     Register all NIfTI files in a directory to a template
     
     Args:
         input_dir (str): Directory containing input NIfTI files
-        template (str or None): Template file (None = auto-select central file)
+        template (str or None): Template file (None = auto-generate based on strategy)
         output_dir (str): Output directory for registered files
         file_pattern (str): Pattern to match input files (default: "*.nii.gz")
         num_processes (int): Number of parallel processes (default: 4)
+        template_strategy (str): Template generation strategy ("average", "central", "specified")
         
     Returns:
         dict: Processing results with statistics and file details
@@ -282,12 +300,15 @@ def register_single_nifti_file(args):
 - `original_name.reg.nii.gz` for each input file
 - `registration_metadata.txt` with detailed processing report
 
-### Auto-Template Selection
+### Auto-Template Generation
 When no template is specified:
-1. Finds all matching NIfTI files
-2. Sorts them alphabetically
-3. Selects the middle file (e.g., file N/2 of N total files)
-4. Uses this as the template for all registrations
+1. Identifies all matching NIfTI files (excluding already processed `.reg.nii.gz` files)
+2. Generates template based on selected strategy:
+   - **Average** (default): Computes voxel-wise average across all volumes
+   - **Central**: Sorts files alphabetically and selects middle file (e.g., file N/2 of N total files)
+   - **Specified**: Uses manually provided template file
+3. Uses generated/specified template for all registrations
+4. Reports template strategy and file used in processing log
 
 ### Example Output
 ```

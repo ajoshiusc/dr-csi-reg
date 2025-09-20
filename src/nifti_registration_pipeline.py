@@ -4,8 +4,102 @@
 import os
 import glob
 import argparse
+import numpy as np
+import nibabel as nib
 from registration import perform_nonlinear_registration
 from multiprocessing import Pool
+
+
+def generate_average_template(input_files, output_path):
+    """Generate average template from multiple NIfTI files."""
+    print(f"Generating average template from {len(input_files)} volumes...")
+    
+    if not input_files:
+        print("ERROR: No input files provided")
+        return False
+    
+    try:
+        import nibabel as nib
+        import numpy as np
+        
+        # Load first volume to get dimensions and affine
+        first_img = nib.load(input_files[0])
+        first_data = first_img.get_fdata()
+        first_affine = first_img.affine
+        first_header = first_img.header
+        
+        print(f"Template dimensions: {first_data.shape}")
+        
+        # Initialize accumulator
+        volume_sum = np.zeros_like(first_data, dtype=np.float64)
+        valid_count = 0
+        
+        # Accumulate all volumes
+        for i, filepath in enumerate(input_files):
+            print(f"  Processing volume {i+1}/{len(input_files)}")
+            
+            img = nib.load(filepath)
+            data = img.get_fdata()
+            
+            # Check dimensions match
+            if data.shape != first_data.shape:
+                print(f"  Skipping {filepath} (dimension mismatch)")
+                continue
+                
+            # Add to accumulator
+            volume_sum += data.astype(np.float64)
+            valid_count += 1
+        
+        if valid_count == 0:
+            print("ERROR: No valid volumes found")
+            return False
+        
+        # Calculate average
+        average_volume = volume_sum / valid_count
+        print(f"Averaged {valid_count} volumes")
+        
+        # Convert back to original data type
+        if first_data.dtype != np.float64:
+            average_volume = average_volume.astype(first_data.dtype)
+        
+        # Save average template
+        avg_img = nib.Nifti1Image(average_volume, first_affine, first_header)
+        nib.save(avg_img, output_path)
+        print(f"✅ Average template saved: {output_path}")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Failed to generate average template: {e}")
+        return False
+
+
+def generate_central_template(input_files, output_path):
+    """Generate template using central (middle) volume."""
+    if not input_files:
+        print("ERROR: No input files provided")
+        return False
+    
+    try:
+        import nibabel as nib
+        
+        # Sort files and select central one
+        sorted_files = sorted(input_files)
+        central_index = len(sorted_files) // 2
+        central_file = sorted_files[central_index]
+        
+        print(f"Using central volume template: {os.path.basename(central_file)}")
+        print(f"  (Volume {central_index + 1} of {len(sorted_files)} sorted files)")
+        
+        # Copy central file to output
+        img = nib.load(central_file)
+        nib.save(img, output_path)
+        print(f"✅ Central template saved: {output_path}")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Failed to generate central template: {e}")
+        return False
+
 
 def register_single_nifti_file(args):
     """
@@ -105,16 +199,17 @@ def register_single_nifti_file(args):
     return result
 
 def register_nifti_directory(input_dir, template, output_dir, 
-                                 file_pattern="*.nii.gz", num_processes=4):
+                                 file_pattern="*.nii.gz", num_processes=4, template_strategy="average"):
     """
     Process registration for all NIfTI files in a directory
     
     Args:
         input_dir: Directory containing input NIfTI files
-        template: Template file for registration (if None, uses central file from input_dir)
+        template: Template file for registration (if None, generates based on strategy)
         output_dir: Output directory for registered files
         file_pattern: Pattern to match input files (default: "*.nii.gz")
         num_processes: Number of parallel processes
+        template_strategy: Strategy for auto-template generation ("average", "central", "specified")
         
     Returns:
         Dict with processing results
@@ -124,31 +219,45 @@ def register_nifti_directory(input_dir, template, output_dir,
     if not os.path.exists(input_dir):
         print(f"ERROR: Input directory {input_dir} does not exist.")
         return None
-    
-    # Auto-select template if not provided
+
+    # Auto-generate template if not provided
     if template is None:
-        print("No template specified, auto-selecting central file from input directory...")
-        # Find all matching NIfTI files for template selection
+        if template_strategy == "specified":
+            print("ERROR: Template strategy 'specified' requires --template option to be provided")
+            return None
+            
+        print(f"No template specified, generating {template_strategy} template from input directory...")
+        
+        # Find all matching NIfTI files for template generation
         template_pattern = os.path.join(input_dir, file_pattern)
         template_candidates = glob.glob(template_pattern)
         template_candidates = [f for f in template_candidates if not f.endswith('.reg.nii.gz')]
         
         if not template_candidates:
-            print(f"ERROR: No files found for template selection in {input_dir}")
+            print(f"ERROR: No files found for template generation in {input_dir}")
             return None
         
-        # Sort and select the central file
-        template_candidates.sort()
-        central_index = len(template_candidates) // 2
-        template = template_candidates[central_index]
-        print(f"Auto-selected template: {template}")
-        print(f"  (File {central_index + 1} of {len(template_candidates)} sorted files)")
-    
+        # Generate template based on strategy
+        template = os.path.join(output_dir, f"auto_generated_template_{template_strategy}.nii.gz")
+        os.makedirs(output_dir, exist_ok=True)
+        
+        if template_strategy == "average":
+            success = generate_average_template(template_candidates, template)
+        elif template_strategy == "central":
+            success = generate_central_template(template_candidates, template)
+        else:
+            print(f"ERROR: Unsupported template strategy: {template_strategy}")
+            return None
+            
+        if not success:
+            print(f"ERROR: Failed to generate {template_strategy} template")
+            return None
+            
+        print(f"Generated {template_strategy} template: {template}")
+        
     if not os.path.exists(template):
         print(f"ERROR: Template file {template} does not exist.")
-        return None
-    
-    # Create output directory
+        return None    # Create output directory
     os.makedirs(output_dir, exist_ok=True)
     
     # Find all matching NIfTI files
@@ -237,7 +346,9 @@ def main():
     parser.add_argument('input_dir', help='Directory containing input NIfTI files')
     parser.add_argument('output_dir', help='Output directory for registered files')
     parser.add_argument('--template', default=None,
-                       help='Template NIfTI file for registration (if not specified, uses central file from input directory)')
+                       help='Template NIfTI file for registration (if not specified, auto-generates based on strategy)')
+    parser.add_argument('--template-strategy', choices=['average', 'central', 'specified'], default='average',
+                       help='Template generation strategy when --template not specified (default: average). Use "specified" with --template option.')
     parser.add_argument('--pattern', default='*.nii.gz', 
                        help='File pattern to match (default: *.nii.gz)')
     parser.add_argument('--processes', type=int, default=4,
@@ -250,7 +361,7 @@ def main():
     if args.template:
         print(f"Template file: {args.template}")
     else:
-        print("Template file: Auto-select (central file from input directory)")
+        print(f"Template strategy: {args.template_strategy} (auto-generated)")
     print(f"Output directory: {args.output_dir}")
     print(f"File pattern: {args.pattern}")
     print(f"Parallel processes: {args.processes}")
@@ -271,7 +382,8 @@ def main():
         template=args.template,
         output_dir=args.output_dir,
         file_pattern=args.pattern,
-        num_processes=args.processes
+        num_processes=args.processes,
+        template_strategy=args.template_strategy
     )
     
     if not results:
@@ -305,10 +417,16 @@ def example_usage():
     print("\nUsage:")
     print("  python nifti_registration_pipeline.py <input_dir> <output_dir> [options]")
     print("\nExamples:")
-    print("  # Auto-select central file as template:")
+    print("  # Auto-generate average template (default, recommended):")
     print("  python nifti_registration_pipeline.py \\")
     print("    /path/to/nifti/files \\")
     print("    /path/to/output")
+    print("")
+    print("  # Use central volume template:")
+    print("  python nifti_registration_pipeline.py \\")
+    print("    /path/to/nifti/files \\")
+    print("    /path/to/output \\")
+    print("    --template-strategy central")
     print("")
     print("  # Specify custom template:")
     print("  python nifti_registration_pipeline.py \\")
@@ -316,12 +434,13 @@ def example_usage():
     print("    /path/to/output \\")
     print("    --template /path/to/template.nii.gz")
     print("\nOptional arguments:")
-    print("  --template FILE      Template NIfTI file (default: auto-select central file)")
-    print("  --pattern PATTERN    File pattern to match (default: *.nii.gz)")
-    print("  --processes NUM      Number of parallel processes (default: 4)")
+    print("  --template FILE          Template NIfTI file (overrides template-strategy)")
+    print("  --template-strategy STR  Template generation strategy: average (default), central")
+    print("  --pattern PATTERN        File pattern to match (default: *.nii.gz)")
+    print("  --processes NUM          Number of parallel processes (default: 4)")
     print("\nThe script will:")
     print("  1. Find all NIfTI files matching the pattern")
-    print("  2. Auto-select template (central file) if not specified")
+    print("  2. Generate template using specified strategy (default: average)")
     print("  3. Register each file to the template in parallel")
     print("  4. Save registered files with '.reg' suffix")
     print("  5. Generate a detailed processing report")

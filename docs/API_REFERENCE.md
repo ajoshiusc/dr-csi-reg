@@ -74,15 +74,16 @@ print(f"Conversion {'succeeded' if success else 'failed'}")
 
 ### nifti_registration_pipeline.py
 
-#### `register_nifti_directory(input_dir, template, output_dir, file_pattern="*.nii.gz", num_processes=4)`
+#### `register_nifti_directory(input_dir, template, output_dir, file_pattern="*.nii.gz", num_processes=4, template_strategy="average")`
 Register all NIfTI files in a directory to a template.
 
 **Parameters:**
 - `input_dir` (str): Directory containing input NIfTI files
-- `template` (str or None): Template file (None = auto-select central file)
+- `template` (str or None): Template file (None = auto-generate based on strategy)
 - `output_dir` (str): Output directory for registered files
 - `file_pattern` (str): Pattern to match input files (default: "*.nii.gz")
 - `num_processes` (int): Number of parallel processes (default: 4)
+- `template_strategy` (str): Template generation strategy - "average" (default), "central", or "specified"
 
 **Returns:**
 - `dict`: Processing results with statistics and file details
@@ -91,11 +92,14 @@ Register all NIfTI files in a directory to a template.
 ```python
 from nifti_registration_pipeline import register_nifti_directory
 
+# Using default average template strategy
 results = register_nifti_directory(
     "patient2_nifti_spectral_output",
-    template=None,  # Auto-select central file
+    template=None,  # Auto-generate average template
     output_dir="patient2_registration_output",
-    num_processes=4
+    num_processes=4,
+    template_strategy="average"  # Default strategy
+)
 )
 print(f"Successfully registered: {results['successful']} files")
 ```
