@@ -191,10 +191,23 @@ def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=
 3. **Non-linear Registration**: PyTorch/MONAI-based deformable registration  
 4. **Transformation Composition**: Combines all transforms for final output
 
+### Template Selection Strategy
+- **Automatic Selection**: When no template is specified, the system automatically selects the central/middle volume from all available spectral files
+- **Selection Algorithm**: 
+  - Files are sorted alphabetically (e.g., `spectral_point_000.nii.gz`, `spectral_point_001.nii.gz`, ...)
+  - The middle file is chosen using index `N//2` where N is the total number of files
+  - For spectral datasets with files 000 through 030, volume 015 would be selected
+- **Rationale**: 
+  - Central volumes typically have optimal signal-to-noise ratio
+  - Represents a balanced point in the spectral range
+  - Avoids potential artifacts at spectral extremes
+- **Custom Override**: Use `--template` option to specify a different reference volume if needed
+- **Output**: The system reports which template was auto-selected during processing
+
 ### ⚠️ System Requirements
 - **NVIDIA GPU with CUDA support** (recommended, falls back to CPU)
-- **Processing time**: 3-4 hours for typical spectral datasets (31 files)
-- **Memory requirements**: 8GB+ GPU memory recommended
+- **Processing time**: 3-4 hours for typical spectral datasets (varies with number of files)
+- **Memory requirements**: 4GB+ GPU memory recommended
 - **System requirements**: 16GB+ RAM, ~5GB disk space for outputs
 - **Parallel processes**: Use `--processes 4` (default, can be adjusted based on system resources)
 
@@ -273,7 +286,7 @@ def register_single_nifti_file(args):
 When no template is specified:
 1. Finds all matching NIfTI files
 2. Sorts them alphabetically
-3. Selects the middle file (e.g., file 16 of 31)
+3. Selects the middle file (e.g., file N/2 of N total files)
 4. Uses this as the template for all registrations
 
 ### Example Output
@@ -287,8 +300,8 @@ Parallel processes: 4
 
 Processing registration for files in patient2_nifti_spectral_output...
 Auto-selected template: spectral_point_015.nii.gz
-  (File 16 of 31 sorted files)
-Found 31 input files to process
+  (File N/2 of N sorted files)
+Found N input files to process
 Template: patient2_nifti_spectral_output/spectral_point_015.nii.gz
 Using 4 parallel processes
 
@@ -327,14 +340,14 @@ pip install scipy nibabel nilearn SimpleITK numpy matplotlib opencv-python
 ```bash
 # 1. Convert .mat to NIfTI files
 python spectral_mat_to_nifti.py data_wip_patient2.mat patient2_nifti_spectral_output
-# Output: 31 spectral NIfTI files + visualizations
+# Output: Multiple spectral NIfTI files + visualizations
 
 # 2. Register all files to central template
 python nifti_registration_pipeline.py \
     patient2_nifti_spectral_output \
     patient2_registration_output \
     --processes 4
-# Output: 31 registered .reg.nii.gz files
+# Output: Registered .reg.nii.gz files (one per input file)
 
 # 3. Convert back to .mat format (optional verification)
 python spectral_nifti_to_mat.py patient2_nifti_spectral_output reconstructed.mat data_wip_patient2.mat

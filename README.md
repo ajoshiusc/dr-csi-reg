@@ -60,7 +60,7 @@ dr-csi-reg/
 
 ### **Processing Time Estimates**
 - **Conversion (.mat ↔ NIfTI)**: ~30 seconds - 2 minutes
-- **Registration**: **3-4 hours** for 31 spectral files (GPU-accelerated)
+- **Registration**: **3-4 hours** for typical spectral datasets (GPU-accelerated)
 - **Full Module Workflow**: Use `python run_registration_module.py <input.mat> <output_dir>` for complete automation
 - Complete module processing: Allow 4-5 hours total processing time
 
@@ -91,6 +91,13 @@ See [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) for complete usage guide and 
 3. **Non-linear Registration**: PyTorch/MONAI-based deformable registration
 4. **Composition**: Combines transformations for final output
 
+### **Template Selection for Registration**
+- **Automatic Selection**: If no template is specified, the system automatically selects the central/middle volume from all spectral files as the reference
+- **Selection Logic**: Files are sorted alphabetically, and the middle file is chosen (e.g., for N files, file at index N//2 is selected)
+- **Rationale**: The central volume typically provides optimal signal-to-noise ratio and represents a balanced point in the spectral range
+- **Custom Override**: You can specify a different template using `--template` option if needed
+- **Example**: For spectral files 000-030, volume 015 would be automatically selected as the reference template
+
 ### **Parallel Processing Notes**
 - Default: `--processes 4` (can be adjusted based on system resources)
 - Race condition protection: Atomic file locking prevents collisions
@@ -110,8 +117,8 @@ See [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) for complete usage guide and 
 ```
 
 **Processing Flow:**
-- **Step 1**: `.mat` → 31 individual NIfTI files (`spectral_point_000.nii.gz` ... `spectral_point_030.nii.gz`)
-- **Step 2**: Registration → 31 registered files (`spectral_point_000.reg.nii.gz` ... `spectral_point_030.reg.nii.gz`) 
+- **Step 1**: `.mat` → Individual NIfTI files (e.g., `spectral_point_000.nii.gz` ... `spectral_point_030.nii.gz`)
+- **Step 2**: Registration → Registered files (e.g., `spectral_point_000.reg.nii.gz` ... `spectral_point_030.reg.nii.gz`) 
 - **Step 3**: NIfTI → `.mat` with **ALL original fields preserved** including **original data types** except updated `data`
 
 ## 🏃‍♂️ Example Workflows
@@ -141,7 +148,7 @@ python run_registration_module.py /path/to/data.mat /path/to/output --processes 
 **Output Structure:**
 ```
 output_directory/
-├── nifti/                    # Converted NIfTI files (31 files)
+├── nifti/                    # Converted NIfTI files
 ├── registration/             # Registered NIfTI files  
 └── {input_name}_registered.mat   # Final registered .mat file
 ```
@@ -150,7 +157,7 @@ output_directory/
 ```bash
 # Convert spectral data to individual NIfTI files
 python convert_mat_to_nifti.py data/data_wip_patient2.mat data/patient2_nifti_output
-# → Creates data/patient2_nifti_output/ with 31 files
+# → Creates data/patient2_nifti_output/ with multiple spectral files
 
 # Register all files using center alignment + PyTorch/MONAI
 python register_nifti.py \
@@ -158,8 +165,9 @@ python register_nifti.py \
     data/patient2_registration_output \
     --processes 4
 # → Creates registered .reg.nii.gz files
+# → Automatically selects central volume as template (e.g., volume 015 for files 000-030)
 # → Uses center alignment (no SimpleITK errors)
-# → Takes 3-4 hours for 31 files
+# → Takes 3-4 hours for typical datasets
 
 # Convert back to .mat format with metadata preservation
 python convert_nifti_to_mat.py \
@@ -180,6 +188,10 @@ python convert_mat_to_nifti.py data/data_wip_patient2.mat data/custom_output/ --
 # Use specific template file instead of auto-selected central file
 python register_nifti.py data/input_dir data/output_dir \
     --template data/custom_template.nii.gz --processes 4
+
+# Example: Force use of first volume as template
+python register_nifti.py data/input_dir data/output_dir \
+    --template data/input_dir/spectral_point_000.nii.gz --processes 4
 ```
 
 ## 💡 Advanced Usage
