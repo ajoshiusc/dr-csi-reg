@@ -143,7 +143,7 @@ python run_registration_module.py /path/to/data.mat /path/to/output --processes 
 output_directory/
 ├── nifti/                    # Converted NIfTI files (31 files)
 ├── registration/             # Registered NIfTI files  
-└── final_reconstructed.mat   # Final registered .mat file
+└── {input_name}_registered.mat   # Final registered .mat file
 ```
 
 ### **Manual Step-by-Step Workflow**

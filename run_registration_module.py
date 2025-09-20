@@ -89,7 +89,10 @@ def main():
     output_dir = Path(args.output_directory).resolve()
     nifti_dir = output_dir / 'nifti'
     registration_dir = output_dir / 'registration'
-    final_mat = output_dir / 'final_reconstructed.mat'
+    
+    # Create output .mat filename based on input filename
+    input_stem = input_mat.stem  # filename without extension
+    final_mat = output_dir / f"{input_stem}_registered.mat"
 
     # Validate inputs and setup directories
     validate_inputs(input_mat)
