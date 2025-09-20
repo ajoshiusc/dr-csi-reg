@@ -14,7 +14,7 @@ source .venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 
 # 2. Run complete workflow (recommended)
-bash run_registration_module.sh data/data_wip_patient2.mat output_results
+python run_registration_module.py data/data_wip_patient2.mat output_results
 
 # OR run individual steps:
 
@@ -33,7 +33,7 @@ python convert_nifti_to_mat.py data/registered_output data/final.mat data/data_w
 
 ```
 dr-csi-reg/
-├── 📄 run_registration_module.sh      # Complete automated module workflow (recommended)
+├── 📄 run_registration_module.py      # Complete automated module workflow (recommended)
 ├── 📄 convert_mat_to_nifti.py        # Wrapper: .mat → NIfTI conversion
 ├── 📄 convert_nifti_to_mat.py        # Wrapper: NIfTI → .mat conversion
 ├── 📄 register_nifti.py              # Wrapper: Enhanced registration module  
@@ -61,7 +61,7 @@ dr-csi-reg/
 ### **Processing Time Estimates**
 - **Conversion (.mat ↔ NIfTI)**: ~30 seconds - 2 minutes
 - **Registration**: **3-4 hours** for 31 spectral files (GPU-accelerated)
-- **Full Module Workflow**: Use `bash run_registration_module.sh <input.mat> <output_dir>` for complete automation
+- **Full Module Workflow**: Use `python run_registration_module.py <input.mat> <output_dir>` for complete automation
 - Complete module processing: Allow 4-5 hours total processing time
 
 ### **System Requirements**
@@ -119,7 +119,7 @@ See [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) for complete usage guide and 
 ### **Recommended: Full Automated Module Workflow**
 ```bash
 # Single command to run complete module workflow
-bash run_registration_module.sh data/input.mat results/output_dir
+python run_registration_module.py data/input.mat results/output_dir
 # → Converts .mat → NIfTI → Register → Final .mat
 # → Uses parallel processing with race condition protection
 # → Preserves all original metadata fields
@@ -128,14 +128,14 @@ bash run_registration_module.sh data/input.mat results/output_dir
 **Usage:**
 ```bash
 # Basic usage (4 parallel processes by default)
-bash run_registration_module.sh <input_mat_file> <output_directory>
+python run_registration_module.py <input_mat_file> <output_directory>
 
 # With custom parallel processes
-bash run_registration_module.sh <input_mat_file> <output_directory> <processes>
+python run_registration_module.py <input_mat_file> <output_directory> --processes <num>
 
 # Examples:
-bash run_registration_module.sh data/patient1.mat results/patient1
-bash run_registration_module.sh /path/to/data.mat /path/to/output 8
+python run_registration_module.py data/patient1.mat results/patient1
+python run_registration_module.py /path/to/data.mat /path/to/output --processes 8
 ```
 
 **Output Structure:**
@@ -187,7 +187,7 @@ python register_nifti.py data/input_dir data/output_dir \
 ### **Full Module Workflow Script (Recommended)**
 ```bash
 # Automated complete module workflow with monitoring
-bash run_registration_module.sh data/input.mat results/output 8
+python run_registration_module.py data/input.mat results/output --processes 8
 
 # Monitor progress in another terminal
 tail -f results/output/registration_log.txt

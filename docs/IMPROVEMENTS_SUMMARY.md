@@ -121,7 +121,7 @@ elif device == "cuda":
 1. **Reliability**: Zero registration failures instead of 55% failure rate
 2. **Data Integrity**: All original .mat metadata preserved perfectly
 3. **Performance**: Better GPU utilization without memory conflicts  
-4. **Usability**: Single command workflow (`bash run_registration_module.sh`)
+4. **Usability**: Single command workflow (`python run_registration_module.py`)
 5. **Maintenance**: Cleaner, more maintainable codebase
 
 ## 📝 Documentation Updates

@@ -14,7 +14,7 @@ install:	## Install dependencies in virtual environment
 	rm -rf data/test_output
 
 example:	## Run complete module workflow example
-	bash run_registration_module.sh
+	python run_registration_module.py data/data_wip_patient2.mat test_workflow_output
 
 lint:	## Check code quality (if you have pylint installed)
 	@if command -v pylint >/dev/null 2>&1; then \
@@ -34,4 +34,4 @@ show-docs:	## Show documentation locations
 	@echo "  README.md - Quick start and overview"
 	@echo "  docs/DOCUMENTATION.md - Detailed usage guide" 
 	@echo "  docs/API_REFERENCE.md - Function references"
-	@echo "  run_registration_module.sh - Complete workflow runner"
+	@echo "  run_registration_module.py - Complete workflow runner (cross-platform)"
