@@ -23,7 +23,7 @@ def main_registration():
     convert_spectral_mat_to_nifti("data/data_wip_patient2.mat", "patient2_output/nifti")
     
     print("🔍 Step 2: Registering NIfTI files...")
-    register_nifti("patient2_output/nifti", "patient2_output/registration", processes=4)
+    register_nifti("patient2_output/nifti", "patient2_output/registration", processes=1)
     
     print("🔍 Step 3: Converting back to MAT...")
     convert_spectral_nifti_to_mat("patient2_output/registration", "patient2_output/data_wip_patient2_registered.mat", "data/data_wip_patient2.mat")
@@ -91,41 +91,16 @@ def profile_registration():
 
 
 def analyze_cpu_vs_gpu_usage(stats):
-    """Analyze CPU vs GPU usage patterns"""
-    print("\n🔍 CPU vs GPU Usage Analysis:")
+    """Analyze whether operations are CPU or GPU intensive"""
+    print("🔍 CPU vs GPU Usage Analysis:")
     print("-" * 40)
     
     # Get stats as dictionary for analysis
-    stats_dict = stats.get_stats()
+    stats_dict = stats.stats
     
-    # Categories to look for
-    cpu_intensive = []
+    cpu_intensive_functions = []
+    io_operations = []
     gpu_operations = []
-    multiprocessing_overhead = []
-    
-    for func_key, func_stats in stats_dict.items():
-        filename, line_num, func_name = func_key
-        cumtime = func_stats[3]  # cumulative time
-        
-        # Categorize functions
-        if any(keyword in filename.lower() for keyword in ['multiprocessing', 'pool', 'worker', 'process']):
-            multiprocessing_overhead.append((func_name, cumtime, filename))
-        elif any(keyword in func_name.lower() for keyword in ['cuda', 'gpu', 'torch', 'monai']):
-            gpu_operations.append((func_name, cumtime, filename))
-        elif cumtime > 0.1:  # Functions taking >0.1s
-            cpu_intensive.append((func_name, cumtime, filename))
-    
-    print(f"🔥 Top CPU-Intensive Functions ({len(cpu_intensive)}):")
-    for func_name, cumtime, filename in sorted(cpu_intensive, key=lambda x: x[1], reverse=True)[:10]:
-        print(f"  {cumtime:6.2f}s - {func_name} ({Path(filename).name})")
-    
-    print(f"\n🚀 GPU Operations ({len(gpu_operations)}):")
-    for func_name, cumtime, filename in sorted(gpu_operations, key=lambda x: x[1], reverse=True)[:5]:
-        print(f"  {cumtime:6.2f}s - {func_name} ({Path(filename).name})")
-    
-    print(f"\n⚙️ Multiprocessing Overhead ({len(multiprocessing_overhead)}):")
-    for func_name, cumtime, filename in sorted(multiprocessing_overhead, key=lambda x: x[1], reverse=True)[:5]:
-        print(f"  {cumtime:6.2f}s - {func_name} ({Path(filename).name})")
 
 
 if __name__ == "__main__":
