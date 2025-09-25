@@ -340,6 +340,67 @@ def register_nifti_directory(input_dir, template, output_dir,
     print(f"Saved metadata: {metadata_file}")
     return results
 
+def register_nifti(input_dir, output_dir, template=None, template_strategy='average', 
+                   pattern='*.nii.gz', processes=4):
+    """
+    Direct function call interface for NIfTI registration
+    
+    Args:
+        input_dir: Directory containing input NIfTI files
+        output_dir: Output directory for registered files  
+        template: Template NIfTI file (optional, auto-generates if None)
+        template_strategy: Template generation strategy ('average', 'central', 'specified')
+        pattern: File pattern to match (default: '*.nii.gz')
+        processes: Number of parallel processes (default: 4)
+        
+    Returns:
+        Dict with processing results or None if failed
+    """
+    print("=== NIfTI Registration Processing ===")
+    print(f"Input directory: {input_dir}")
+    if template:
+        print(f"Template file: {template}")
+    else:
+        print(f"Template strategy: {template_strategy} (auto-generated)")
+    print(f"Output directory: {output_dir}")
+    print(f"File pattern: {pattern}")
+    print(f"Parallel processes: {processes}")
+    
+    # Verify template exists (if specified)
+    if template and not os.path.exists(template):
+        print(f"ERROR: Template file does not exist: {template}")
+        return None
+    
+    # Verify input directory exists
+    if not os.path.exists(input_dir):
+        print(f"ERROR: Input directory does not exist: {input_dir}")
+        return None
+    
+    # Process registration
+    results = register_nifti_directory(
+        input_dir=input_dir,
+        template=template,
+        output_dir=output_dir,
+        file_pattern=pattern,
+        num_processes=processes,
+        template_strategy=template_strategy
+    )
+    
+    if not results:
+        print("❌ Registration processing failed")
+        return None
+    
+    # Print summary
+    print(f"\n{'='*60}")
+    print("REGISTRATION PROCESSING SUMMARY")
+    print('='*60)
+    print(f"✅ Successful: {results['successful']}")
+    print(f"⏭️  Skipped: {results['skipped']}")  
+    print(f"❌ Failed: {results['failed']}")
+    print(f"📊 Total: {results['total_files']}")
+    
+    return results
+
 def main():
     """Main function with command line argument support"""
     parser = argparse.ArgumentParser(description='Register NIfTI files to a template')
@@ -356,100 +417,24 @@ def main():
     
     args = parser.parse_args()
     
-    print("=== Generic NIfTI Registration Processing ===")
-    print(f"Input directory: {args.input_dir}")
-    if args.template:
-        print(f"Template file: {args.template}")
-    else:
-        print(f"Template strategy: {args.template_strategy} (auto-generated)")
-    print(f"Output directory: {args.output_dir}")
-    print(f"File pattern: {args.pattern}")
-    print(f"Parallel processes: {args.processes}")
-    
-    # Verify template exists (if specified)
-    if args.template and not os.path.exists(args.template):
-        print(f"ERROR: Template file does not exist: {args.template}")
-        return 1
-    
-    # Verify input directory exists
-    if not os.path.exists(args.input_dir):
-        print(f"ERROR: Input directory does not exist: {args.input_dir}")
-        return 1
-    
-    # Process registration
-    results = register_nifti_directory(
+    # Call the direct function interface
+    results = register_nifti(
         input_dir=args.input_dir,
-        template=args.template,
         output_dir=args.output_dir,
-        file_pattern=args.pattern,
-        num_processes=args.processes,
-        template_strategy=args.template_strategy
+        template=args.template,
+        template_strategy=args.template_strategy,
+        pattern=args.pattern,
+        processes=args.processes
     )
     
-    if not results:
-        print("❌ Registration processing failed")
-        return 1
-    
-    # Print summary
-    print(f"\n{'='*60}")
-    print("REGISTRATION PROCESSING SUMMARY")
-    print('='*60)
-    print(f"✅ Successful: {results['successful']}")
-    print(f"⏭️  Skipped: {results['skipped']}")  
-    print(f"❌ Failed: {results['failed']}")
-    print(f"📊 Total: {results['total_files']}")
-    
-    if results['errors']:
-        print(f"\n⚠️  Errors encountered ({len(results['errors'])}):")
-        for error in results['errors']:
-            print(f"   - {error}")
-    
-    print(f"\n📁 Output files saved to: {args.output_dir}")
-    print(f"📄 Detailed results saved to: {os.path.join(args.output_dir, 'registration_metadata.txt')}")
-    
-    return 0
+    return 0 if results else 1
 
-def example_usage():
-    """Show example usage when run without arguments"""
-    print("=== Generic NIfTI Registration Script ===")
-    print("\nThis script registers all NIfTI files in a directory to a template.")
-    print("It works with any NIfTI files, not just specific TE/b-value formats.")
-    print("\nUsage:")
-    print("  python nifti_registration_pipeline.py <input_dir> <output_dir> [options]")
-    print("\nExamples:")
-    print("  # Auto-generate average template (default, recommended):")
-    print("  python nifti_registration_pipeline.py \\")
-    print("    /path/to/nifti/files \\")
-    print("    /path/to/output")
-    print("")
-    print("  # Use central volume template:")
-    print("  python nifti_registration_pipeline.py \\")
-    print("    /path/to/nifti/files \\")
-    print("    /path/to/output \\")
-    print("    --template-strategy central")
-    print("")
-    print("  # Specify custom template:")
-    print("  python nifti_registration_pipeline.py \\")
-    print("    /path/to/nifti/files \\")
-    print("    /path/to/output \\")
-    print("    --template /path/to/template.nii.gz")
-    print("\nOptional arguments:")
-    print("  --template FILE          Template NIfTI file (overrides template-strategy)")
-    print("  --template-strategy STR  Template generation strategy: average (default), central")
-    print("  --pattern PATTERN        File pattern to match (default: *.nii.gz)")
-    print("  --processes NUM          Number of parallel processes (default: 4)")
-    print("\nThe script will:")
-    print("  1. Find all NIfTI files matching the pattern")
-    print("  2. Generate template using specified strategy (default: average)")
-    print("  3. Register each file to the template in parallel")
-    print("  4. Save registered files with '.reg' suffix")
-    print("  5. Generate a detailed processing report")
 
 if __name__ == "__main__":
     import sys
     
     if len(sys.argv) < 3:
-        example_usage()
+        print("Usage: python nifti_registration_pipeline.py <input_dir> <output_dir> [options]")
         sys.exit(1)
     
     sys.exit(main())
