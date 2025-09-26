@@ -189,40 +189,50 @@ class Warper:
         if target_mask is not None:
             target_ds *= target_mask_ds
 
+        # Pre-allocate tensors to avoid repeated concatenation
+        input_data_template = torch.cat((moving_ds, target_ds), dim=0)[None,]
+        moving_batched = moving_ds[None,]
+        target_batched = target_ds[None,]
+
         for epoch in range(max_epochs):
             optimizerR.zero_grad()
-            input_data = torch.cat((moving_ds, target_ds), dim=0)
-            input_data = input_data[None,]
-            dvf_ds = reg(input_data)
+            
+            # Reuse pre-allocated tensor
+            dvf_ds = reg(input_data_template)
             ddf_ds = dvf_to_ddf(dvf_ds)
-            inv_ddf_ds = dvf_to_ddf(-dvf_ds)
-
-            image_moved = warp_layer(moving_ds[None,], ddf_ds)
+            # Skip inverse DDF computation during training (only compute at end)
+            
+            image_moved = warp_layer(moving_batched, ddf_ds)
 
             if target_mask is not None:
                 image_moved *= target_mask_ds
 
-            imgloss = image_loss(image_moved, target_ds[None,])
+            imgloss = image_loss(image_moved, target_batched)
             regloss = reg_penalty * regularization(ddf_ds)
             vol_loss = imgloss + regloss
 
-            # print('imgloss:'+dscolors.blue+f'{imgloss:.4f}'+dscolors.clear
-            # 			+', regloss:'+dscolors.blue+f'{regloss:.4f}'+dscolors.clear)#, end=' ')
             vol_loss.backward()
             optimizerR.step()
-            # print('epoch_loss:'+dscolors.blue+f'{vol_loss:.4f}'+dscolors.clear
-            # 		+' for epoch:'+dscolors.blue+f'{epoch}'+'/'+f'{max_epochs}'+dscolors.clear+'     ',end='\r\033[A')
-            print(
-                "epoch:",
-                dscolors.green,
-                f"{epoch}/{max_epochs}",
-                "Loss:",
-                dscolors.yellow,
-                f"{vol_loss.detach().cpu().numpy():.2f}",
-                dscolors.clear,
-                "",
-                end="\r",
-            )
+            
+            # Optimize: Print every 50 epochs and use .item() to reduce CPU overhead
+            if epoch % 50 == 0 or epoch == max_epochs - 1:
+                print(
+                    "epoch:",
+                    dscolors.green,
+                    f"{epoch}/{max_epochs}",
+                    "Loss:",
+                    dscolors.yellow,
+                    f"{vol_loss.item():.2f}",
+                    dscolors.clear,
+                    "",
+                    end="\r",
+                )
+        
+        # Compute inverse DDF only once at the end
+        with torch.no_grad():
+            dvf_ds = reg(input_data_template)
+            ddf_ds = dvf_to_ddf(dvf_ds)
+            inv_ddf_ds = dvf_to_ddf(-dvf_ds)
 
         print("finished", dscolors.green, f"{max_epochs}", dscolors.clear, "epochs")
 
@@ -240,7 +250,7 @@ class Warper:
         ddfx = Resize(spatial_size=size_target, mode="trilinear")(ddf_ds[:, 0].to('cpu')).to('cpu') * (
             size_moving[0] / SZ
         )
-        ddfy = Resize(spatial_size=size_target, mode="trilinear")(ddf_ds[:, 1]).to('cpu') * (
+        ddfy = Resize(spatial_size=size_target, mode="trilinear")(ddf_ds[:, 1].to('cpu')).to('cpu') * (
             size_moving[1] / SZ
         )
         ddfz = Resize(spatial_size=size_target, mode="trilinear")(ddf_ds[:, 2].to('cpu')).to('cpu') * (
