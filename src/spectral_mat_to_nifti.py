@@ -125,7 +125,7 @@ def convert_spectral_mat_to_nifti(mat_file, output_dir, res=None):
         resolution = res
         print(f"Using provided resolution override: {resolution}")
     elif 'resolution' in mat:
-        resolution = mat['resolution'][0]
+        resolution = mat['resolution']#[0]
         print(f"Using resolution from mat file: {resolution}")
     else:
         resolution = [1, 1, 1]

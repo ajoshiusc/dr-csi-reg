@@ -41,7 +41,7 @@ def apply_deformation(image, def_field, affine,order=1):
     # Interpolate the image at the displaced coordinates
     deformed_image = np.zeros_like(image)
     #for i in range(shape[2]):
-    deformed_image = map_coordinates(image, voxel_coords.transpose(3, 0, 1, 2), order=order)
+    deformed_image = map_coordinates(image, voxel_coords.transpose(3, 0, 1, 2), order=order, mode='nearest')
     #[..., [2, 1, 0]]
     return deformed_image
 
