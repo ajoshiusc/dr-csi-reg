@@ -8,8 +8,8 @@ import scipy.io as sio
 
 # Input and output paths
 input_mat = "/home/ajoshi/Downloads/Phantom_data.mat"  # Path to input .mat file
-output_dir = "phantom_nifti_output"  # Directory for converted NIFTI files
-deformed_dir = "phantom_nifti_deformed"  # Directory for deformed NIFTI files
+output_dir = "phantom_nifti_output2"  # Directory for converted NIFTI files
+deformed_dir = "phantom_nifti_deformed2"  # Directory for deformed NIFTI files
 
 # Step 1: Convert spectral .mat file to NIFTI format
 print("Converting spectral .mat file to NIFTI format...")
@@ -20,7 +20,7 @@ print("Applying nonlinear deformation to NIFTI files...")
 apply_nonlinear_deformation_to_nifti_files(output_dir, deformed_dir)
 print("Converting deformed NIFTI files back to .mat format...")
 output_mat = "phantom_deformed.mat"
-convert_spectral_nifti_to_mat(deformed_dir, output_mat)
+convert_spectral_nifti_to_mat(deformed_dir, output_mat, original_mat_file=input_mat)
 # Step 3: Register deformed NIFTI files
 print("Registering deformed NIFTI files...")
 registered_dir = deformed_dir + "_registered"
@@ -28,6 +28,6 @@ register_nifti(deformed_dir, registered_dir, processes=1)
 
 # Step 4: Convert registered NIFTI files back to .mat format
 print("Converting registered NIFTI files back to .mat format...")
-output_mat = "phantom_reconstructed.mat"
-convert_spectral_nifti_to_mat(registered_dir, output_mat)
+output_mat = "phantom_registered.mat"
+convert_spectral_nifti_to_mat(registered_dir, output_mat, original_mat_file=input_mat)
 

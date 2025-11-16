@@ -157,7 +157,7 @@ def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=
         print(f"Using original resolution: {resolution_array}")
     elif nifti_spacing:
         # NIfTI spacing is (x, y, z), convert to uint8 array format like original
-        resolution_array = np.array([[int(nifti_spacing[0]), int(nifti_spacing[1]), int(nifti_spacing[2])]], dtype=np.uint8)
+        resolution_array = np.array([[nifti_spacing[0], nifti_spacing[1], nifti_spacing[2]]], dtype=np.float64)
         print(f"Resolution derived from NIfTI spacing: {resolution_array}")
     else:
         resolution_array = np.array([[1, 1, 1]], dtype=np.uint8)
