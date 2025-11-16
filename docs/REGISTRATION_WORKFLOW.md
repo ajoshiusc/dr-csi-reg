@@ -193,12 +193,12 @@ Individual NIfTI volumes for each spectral point:
 - **Content**: 3D spatial volume for each spectral acquisition
 - **Metadata**: Preserved affine transformation, spacing, and orientation
 
-**Metadata file:** `spectral_metadata.txt` contains:
+**Metadata file:** `spectral_metadata.txt` contains, (e.g.):
 ```
 Data from spectral format .mat file
 Original data shape: (12, 52, 104, 31)
 Spectral dimension: 31 (last dimension)
-Spatial dimensions: (12, 52, 104) (z, y, x)
+Spatial dimensions: (12, 52, 104) (x, y, z)
 Resolution: [[2.3 2.3 5.0]]
 Number of NIfTI files created: 31
 Spacing used: [2.3, 2.3, 5.0]
@@ -214,7 +214,7 @@ Registered volumes aligned to the template:
 - **Content**: Spatially aligned 3D volumes
 - **Transformations**: Composed affine + nonlinear deformation fields
 
-**Registration metadata:** `registration_metadata.txt` contains:
+**Registration metadata:** `registration_metadata.txt` contains (e.g.):
 ```
 Registration completed: 2025-11-16 14:23:45
 Template strategy: average
@@ -244,16 +244,8 @@ Reconstructed spectral data in HDF5-based MATLAB v7.3 format:
   
 - **`transform`**: 4×4 affine matrix (preserved from original file)
   
-- **`spatial_dim`**: Array `[[z_dim, y_dim, x_dim]]` (preserved from original file)
+- **`spatial_dim`**: Array `[[x_dim, y_dim, z_dim]]` (preserved from original file)
 
-**All other original metadata fields are preserved**, including custom user fields.
-
-**File size:** Typically 3-10 MB depending on data dimensions and dtype.
-
-**Data type preservation:** The output preserves the exact dtype from the input file:
-- `uint16` → `uint16`
-- `float32` → `float32`
-- `float64` → `float64`
 
 ### 4. Visualization Files (Optional)
 
@@ -439,50 +431,6 @@ template = load_volume(all_volumes[n_volumes // 2])
 - **Disadvantages**: May not be optimal reference for all volumes
 - **Best for**: High-quality datasets with minimal motion
 
-### Data Type Preservation
-
-The pipeline preserves exact data types throughout:
-
-```python
-# Input .mat
-data: dtype=uint16, shape=(12, 52, 104, 31)
-
-# NIfTI conversion (internal float64 for processing)
-spectral_point_000.nii.gz: dtype=float64
-
-# Registration (maintains float64)
-spectral_point_000.reg.nii.gz: dtype=float64
-
-# Output .mat (restored to original dtype)
-data: dtype=uint16, shape=(12, 52, 104, 31)
-```
-
-This ensures **zero precision loss** for integer data types.
-
-### Metadata Preservation
-
-All original .mat file fields are preserved:
-```python
-# Original file
-original_fields = ['data', 'resolution', 'transform', 'spatial_dim', 'custom_field1', 'custom_field2']
-
-# Registered file (only 'data' updated)
-registered_fields = ['data', 'resolution', 'transform', 'spatial_dim', 'custom_field1', 'custom_field2']
-                     # ↑ updated    ↑ all others preserved exactly
-```
-
-### GPU Memory Management
-
-The registration algorithm automatically manages GPU memory:
-- Batch processing for large volumes
-- Automatic garbage collection between registrations
-- Fallback to CPU if GPU memory exhausted
-
-**Typical GPU memory usage:**
-- Affine registration: 1-2 GB
-- Nonlinear registration: 2-4 GB
-- Multiple processes: Memory × processes (with some sharing)
-
 ---
 
 ## Troubleshooting
@@ -559,19 +507,3 @@ The registration algorithm automatically manages GPU memory:
    - Distribute processes across GPUs: `CUDA_VISIBLE_DEVICES=0,1`
 
 ---
-
-## References
-
-- MONAI (Medical Open Network for AI): https://monai.io/
-- SimpleITK: https://simpleitk.org/
-- NIfTI format: https://nifti.nimh.nih.gov/
-- Diffeomorphic registration: Vercauteren et al., NeuroImage 2009
-
----
-
-## See Also
-
-- [Tutorial: Registration of Phantom Data](REGISTRATION_TUTORIAL.md)
-- [File Format Reference](FILE_FORMATS.md)
-- [API Reference](API_REFERENCE.md)
-- [Installation Guide](../README.md#installation)
