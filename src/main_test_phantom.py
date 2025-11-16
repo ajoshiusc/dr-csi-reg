@@ -31,11 +31,3 @@ print("Converting registered NIFTI files back to .mat format...")
 output_mat = "phantom_reconstructed.mat"
 convert_spectral_nifti_to_mat(registered_dir, output_mat)
 
-# Step 5: Verify the output .mat file
-print("Verifying the output .mat file...")
-reconstructed_data = sio.loadmat(output_mat)
-print("Reconstructed data keys:", reconstructed_data.keys())
-if 'data' in reconstructed_data:
-	print("Reconstructed data shape:", reconstructed_data['data'].shape)
-else:
-	print("'data' key not found in reconstructed .mat file.")

@@ -145,6 +145,9 @@ def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=
     # Shape should be (z, y, x, num_spectral) = (12, 52, 104, 31)
     # Stack along the last axis to put spectral dimension last
     reconstructed_data = np.stack(spectral_volumes, axis=-1)
+    
+    # Transpose to (x, y, z, spectral) for MATLAB compatibility
+    reconstructed_data = np.transpose(reconstructed_data, (3, 2, 1, 0))
     print(f"Reconstructed data shape: {reconstructed_data.shape}")
     
     # Convert NIfTI spacing to resolution format for mat file
@@ -192,22 +195,33 @@ def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=
         output_dict['spatial_dim'] = np.array([[reconstructed_data.shape[1], reconstructed_data.shape[2], reconstructed_data.shape[3]]], dtype=np.uint8)
         print("Added default spatial_dim based on data shape")
     
-    # Save to .mat file
+    # Save to .mat file using HDF5 (h5py)
     try:
-        sio.savemat(output_mat_file, output_dict)
-        print(f"Successfully saved reconstructed data to: {output_mat_file}")
-        print(f"Final data shape: {reconstructed_data.shape}")
+        # Save as a MATLAB v7.3 (HDF5) .mat file using hdf5storage (uses h5py under the hood)
+        try:
+            import hdf5storage
+            hdf5storage.savemat(
+                output_mat_file,
+                output_dict,
+                appendmat=False,
+                format='7.3',
+                oned_as='row',
+                store_python_metadata=False
+            )
+            print(f"Successfully saved reconstructed data to: {output_mat_file} (MATLAB v7.3 HDF5)")
+        except ImportError:
+            print("WARNING: hdf5storage not installed; saving as MATLAB v5 .mat instead. "
+                  "Install with: pip install hdf5storage")
+            sio.savemat(output_mat_file, output_dict, do_compression=False)
+            print(f"Successfully saved reconstructed data to: {output_mat_file} (MATLAB v5)")
         print(f"Data type: {reconstructed_data.dtype}")
         print(f"Saved fields: {list(output_dict.keys())}")
-        
         # Calculate file size
         file_size_mb = os.path.getsize(output_mat_file) / (1024 * 1024)
         print(f"Output file size: {file_size_mb:.2f} MB")
-        
         return True
-        
     except Exception as e:
-        print(f"ERROR saving .mat file: {e}")
+        print(f"ERROR saving .mat file (HDF5): {e}")
         return False
 
 if __name__ == "__main__":
