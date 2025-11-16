@@ -25,22 +25,13 @@ The combination of these methods provides robust alignment even in the presence 
 ### Why Use GPU-Accelerated Registration?
 
 Traditional registration methods (e.g., FSL, ANTs) are CPU-based and can be slow for high-dimensional data. This tool uses:
-
-- **PyTorch-based optimization**: Leverages GPU parallel processing
-- **MONAI medical imaging library**: Specialized for medical imaging workflows
-- **Efficient memory management**: Handles large 4D spectral datasets
-
-**Processing time comparison (31 spectral volumes):**
-- Traditional CPU methods (ANTs): 12-24 hours
-- This GPU-accelerated tool: 3-4 hours (3-6× speedup)
-
 ---
 
 ## Goal
 
 This tutorial will guide you through registering phantom spectral MRI data generated for testing and validation. Specifically, we will:
 
-1. **Prepare phantom data** and verify file structure
+1. **Prepare data** and verify file structure
 2. **Convert .mat format to NIfTI** for registration processing
 3. **Apply deformation** (optional) to simulate motion artifacts
 4. **Perform multi-stage registration** to correct misalignment
@@ -912,61 +903,3 @@ Phantom_Registration_Tutorial/
 - **Total**: ~300-600 MB (can be reduced by deleting intermediate files)
 
 ---
-
-## Summary and Next Steps
-
-### What We Learned
-
-In this tutorial, we:
-
-1. ✅ **Prepared phantom spectral data** in MATLAB .mat format
-2. ✅ **Converted to NIfTI format** for registration processing
-3. ✅ **Applied synthetic deformations** to simulate motion artifacts
-4. ✅ **Performed multi-stage registration** using GPU-accelerated methods
-5. ✅ **Converted back to .mat format** with preserved metadata
-6. ✅ **Assessed registration quality** quantitatively and visually
-
-**Key takeaways:**
-- Registration is essential for spectral MRI data quality
-- Multi-stage approach (center → affine → nonlinear) provides robust alignment
-- GPU acceleration reduces processing time from days to hours
-- Quality assessment is critical for validating registration success
-
-### Next Steps
-
-**For phantom data analysis:**
-1. **Repeat with different deformation magnitudes** to test robustness
-2. **Compare registration methods** (e.g., disable nonlinear stage)
-3. **Analyze spectral parameter estimation** accuracy improvement
-
-**For clinical data processing:**
-1. **Apply registration to real patient data**
-2. **Integrate with existing analysis pipelines**
-3. **Optimize parameters for specific acquisition protocols**
-
-**Advanced topics to explore:**
-1. **Multi-modal registration** (e.g., aligning diffusion to anatomical images)
-2. **Group-wise registration** (simultaneous alignment of all volumes)
-3. **Quality metrics** (mutual information, structural similarity)
-
-### Additional Resources
-
-- **DR-CSI Registration Documentation**: [REGISTRATION_WORKFLOW.md](REGISTRATION_WORKFLOW.md)
-- **API Reference**: [API_REFERENCE.md](../docs/API_REFERENCE.md)
-- **MONAI Tutorials**: https://docs.monai.io/en/stable/tutorials.html
-- **Registration Theory**: 
-  - Modersitzki, "FAIR: Flexible Algorithms for Image Registration"
-  - Sotiras et al., "Deformable Medical Image Registration: A Survey"
-
----
-
-## Feedback and Support
-
-If you encounter issues or have questions:
-
-1. **Check troubleshooting section** in this tutorial
-2. **Review detailed documentation**: [REGISTRATION_WORKFLOW.md](REGISTRATION_WORKFLOW.md)
-3. **Report issues**: https://github.com/ajoshiusc/dr-csi-reg/issues
-4. **Contact**: ajoshi@usc.edu
-
-**Happy registering! 🚀**
