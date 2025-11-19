@@ -200,6 +200,8 @@ def convert_spectral_nifti_to_mat(nifti_dir, output_mat_file, original_mat_file=
         # Save as a MATLAB v7.3 (HDF5) .mat file using hdf5storage (uses h5py under the hood)
         try:
             import hdf5storage
+            output_dict['resolution'] = output_dict['resolution'].squeeze()
+            output_dict['spatial_dim'] = output_dict['spatial_dim'].squeeze()
             hdf5storage.savemat(
                 output_mat_file,
                 output_dict,
