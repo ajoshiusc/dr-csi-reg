@@ -19,7 +19,7 @@ convert_spectral_mat_to_nifti(input_mat, output_dir)
 print("Applying nonlinear deformation to NIFTI files...")
 apply_nonlinear_deformation_to_nifti_files(output_dir, deformed_dir)
 print("Converting deformed NIFTI files back to .mat format...")
-output_mat = "phantom_deformed.mat"
+output_mat = "phantom_deformed2.mat"
 convert_spectral_nifti_to_mat(deformed_dir, output_mat, original_mat_file=input_mat)
 # Step 3: Register deformed NIFTI files
 print("Registering deformed NIFTI files...")
@@ -28,6 +28,6 @@ register_nifti(deformed_dir, registered_dir, processes=1)
 
 # Step 4: Convert registered NIFTI files back to .mat format
 print("Converting registered NIFTI files back to .mat format...")
-output_mat = "phantom_registered.mat"
+output_mat = "phantom_registered2.mat"
 convert_spectral_nifti_to_mat(registered_dir, output_mat, original_mat_file=input_mat)
 
